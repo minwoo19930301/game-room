@@ -42,6 +42,13 @@
     "genre": "ARCADE"
   },
   {
+    "id": "platformer",
+    "title": "구름길 어드벤처",
+    "url": "platformer/",
+    "players": "1인",
+    "genre": "PLATFORMER"
+  },
+  {
     "id": "ramen",
     "title": "보글보글 라면가게",
     "url": "ramen/",

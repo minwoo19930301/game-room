@@ -12,7 +12,7 @@ npm run dev
 
 Open http://127.0.0.1:8810/ . Static hosting root: `public/`.
 
-## Selected, playable Web Games (11)
+## Selected, playable Web Games (12)
 
 1. 칠판 기억왕 — remember and repeat arrows (1–4 local keyboard players)
 2. 초밥 뷔페 — collect sushi with chopsticks (1–4)
@@ -25,6 +25,7 @@ Open http://127.0.0.1:8810/ . Static hosting root: `public/`.
 9. 클래식 체스 — sculpted ivory and ebony pieces
 10. 길 건너 한 판 — a voxel road, river and railway crossing game
 11. 끝없는 계단 — climb and switch direction before the timer runs out
+12. 구름길 어드벤처 — a classic platformer with three original stages, power-ups, shells and a final boss
 
 Stadium supports 1, 2, 3 or 4 people on one keyboard; remaining seats use CPU players. Each title exposes native player-count buttons and the actual key layout. Gamepads are not supported. Individual other games retain touch controls where available.
 
@@ -51,4 +52,4 @@ Phone-controller sports and Biohazard integration belong to the separate Render 
 - `scripts/portal.py`: regenerates the curated carousel and catalog; run after builds to refresh resource hashes
 - `docs/PROVENANCE.md`: original sources and revisions
 
-Validation: `npm test --workspaces --if-present` (95 gameplay/render tests), `python3 scripts/check-assets.py`, and browser checks for all 11 automatic previews, carousel selection/pause, four-person selection, crossing-game input/score and stair-climbing input/score. The stairs engine also passes normal movement, turning, falling, timeout, restart and four 100-second automatic-preview simulations. Physical phone and simultaneous multi-key hardware testing remain before public release.
+Validation: `npm test --workspaces --if-present` (95 gameplay/render tests), `node --test public/platformer/tests/*.test.mjs`, `python3 scripts/check-assets.py`, and browser checks for all 12 automatic previews, carousel selection/pause, four-person selection, crossing-game input/score and stair-climbing input/score. The platformer tests cover movement, variable jumps, collisions, power-ups, shells, checkpoints and an uninterrupted legal-input run through all three levels and the final boss. Browser checks include keyboard input, touch controls, pause/resume and viewport fit. The stairs engine also passes normal movement, turning, falling, timeout, restart and four 100-second automatic-preview simulations. Physical phone and simultaneous multi-key hardware testing remain before public release.

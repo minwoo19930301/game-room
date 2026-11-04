@@ -1,0 +1,12 @@
+{
+  "title": "구름길 어드벤처",
+  "description": "달리고, 뛰어넘고, 구름 너머로. 초원부터 성까지 이어지는 세 번의 모험.",
+  "path": "/platformer/",
+  "preview": "/platformer/?preview=1",
+  "category": "web-games",
+  "players": 1,
+  "tags": ["횡스크롤", "플랫폼", "키보드 · 터치"],
+  "source": {"type": "original", "created": "2026-11-05", "license": "MIT"},
+  "rendering": "Canvas 2D, original pixel sprites and parallax backgrounds",
+  "stages": ["초원", "지하 동굴", "성"]
+}
