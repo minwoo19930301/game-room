@@ -63,6 +63,13 @@
     "genre": "ACTION"
   },
   {
+    "id": "ringout",
+    "title": "링아웃",
+    "url": "ringout/",
+    "players": "1인 · CPU 대전",
+    "genre": "BRAWLER"
+  },
+  {
     "id": "football-rescue",
     "title": "플라잉 슛 구출작전",
     "url": "football-rescue/",

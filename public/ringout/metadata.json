@@ -1,0 +1,19 @@
+{
+  "title": "링아웃",
+  "description": "더 높이 뛰고, 더 멀리 날려라. 네 명의 파이터가 펼치는 3D 플랫폼 대전.",
+  "path": "/ringout/",
+  "preview": "/ringout/?preview=1",
+  "category": "web-games",
+  "players": "1P vs CPU",
+  "tags": ["3D", "플랫폼 대전", "키보드 · 터치"],
+  "source": {
+    "repository": "https://github.com/flam-ing/flamingo-ringout-64",
+    "revision": "626c169f2b847d75b4fae3ac27b95f0abce60f29",
+    "license": "MIT",
+    "notice": "licenses/RINGOUT-MIT.txt"
+  },
+  "dependencies": [
+    {"name": "three", "version": "0.179.1", "license": "MIT", "notice": "licenses/Three-MIT.txt"},
+    {"name": "galmuri", "version": "2.40.3", "license": "OFL-1.1", "notice": "licenses/Galmuri-OFL.txt"}
+  ]
+}

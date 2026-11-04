@@ -7,6 +7,7 @@ Selection requested 2026-11-04. Original repositories remain unchanged.
 - `flam-ing/flamingo-rangers` revision `b04576e9c7d8da193a4fc2e0c431ac4b6a9eeb30`.
 - `flam-ing/flamingo-football-rescue` revision `b3b85741eadbab4dde3ded6035374e9db25c6763`.
 - `flam-ing/flaming-games/flamingo-stairs` at `c9f97373f327b33734a6b85c58847222b7858f88`: added as `stairs` / 끝없는 계단 on 2026-11-05, with the existing Navy action sheet and a muted automatic preview. MIT notice preserved in the game folder.
+- `flam-ing/flamingo-ringout-64` revision `626c169f2b847d75b4fae3ac27b95f0abce60f29`: added as `ringout` / 링아웃 on 2026-11-05. Editable source in `sources/ringout`; original README and design notes retained under its `docs/`. Source MIT, Three.js MIT and Galmuri OFL notices ship in `public/ringout/licenses/`.
 
 Source documentation and font license files are retained with each game. Original character images retained in source assets for provenance are not used to draw the new protagonists. Source docs/previews describe the original games, not this edition.
 
@@ -17,3 +18,5 @@ The 12-pose character sheet and ramen kitchen were generated for this remake on 
 Ruby and Geumgang received separate 12-pose character sheets on 2026-11-05; see `sources/rangers/docs/character-redesign.md`. The home now uses live, muted gameplay demos with screenshot fallbacks. Phone-controller game planning was moved out of this repository into the separate Render project folder `../phone-controller-games`.
 
 `platformer` / 구름길 어드벤처 was added on 2026-11-05 as an original Canvas game. Its engine, three level layouts, pixel sprites and synthesized sound effects were created for this repository. The existing Super Mingo code was reviewed to identify differences in movement, but was not used as its engine or level data. The classic controls and power-up interactions were informed by the [official Super Mario Bros. manual](https://www.nintendo.co.jp/clv/manuals/en/pdf/CLV-P-NAAAE.pdf); Nintendo graphics, sound recordings, code and stage layouts are not bundled. Navy's dark hair, navy jacket and white T-shirt were interpreted as a new pixel character. The shared Galmuri11 font remains in `public/rangers/fonts/` with its existing license.
+
+Ringout retains its original arena geometry, physics, combat rules and synthesized effects. Its four bird rigs were rebuilt as human fighters with different clothes, hair, faces, weapons and silhouettes; the first uses Navy's existing character direction. Titles and descriptions were renamed, game-room navigation was added, and preview mode uses the existing CPU controller for both sides. The renderer adjusts its camera aspect ratio for the 16:9 preview card, without stretching the 4:3 game. No external character image or model is loaded.

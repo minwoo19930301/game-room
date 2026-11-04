@@ -15,6 +15,7 @@ GAMES = [
     ('platformer', '구름길 어드벤처', 'platformer/', '1인', 'PLATFORMER'),
     ('ramen', '보글보글 라면가게', 'ramen/', '1인', 'COOKING'),
     ('rangers', '출동! 수호전대', 'rangers/', '1인', 'ACTION'),
+    ('ringout', '링아웃', 'ringout/', '1인 · CPU 대전', 'BRAWLER'),
     ('football-rescue', '플라잉 슛 구출작전', 'football-rescue/', '1인', 'ACTION'),
     ('gate-defense', '게이트 러시', 'gate-defense/', '1인', 'RUNNER'),
     ('chess', '클래식 체스', 'chess/', '1인', 'BOARD'),
