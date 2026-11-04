@@ -1,0 +1,12 @@
+{
+  "name": "blue-shirt-arcade",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "python3 -m http.server 8810 --directory public"
+  },
+  "workspaces": [
+    "sources/*"
+  ]
+}

@@ -1,0 +1,56 @@
+[
+  {
+    "title": "칠판 기억왕",
+    "tag": "MEMORY",
+    "description": "선생님의 화살표를 기억하고 그대로 따라 하세요.",
+    "url": "stadium/games/says.html"
+  },
+  {
+    "title": "초밥 뷔페",
+    "tag": "PARTY",
+    "description": "젓가락을 뻗어 초밥을 모으는 네 명의 식탁.",
+    "url": "stadium/games/sushi.html"
+  },
+  {
+    "title": "딱딱하게!",
+    "tag": "TIMING",
+    "description": "바위가 닿기 직전, 방패로 받아내세요.",
+    "url": "stadium/games/harden.html"
+  },
+  {
+    "title": "친구 세기",
+    "tag": "OBSERVATION",
+    "description": "지나가는 친구들의 색깔과 동작을 구분하세요.",
+    "url": "stadium/games/stampede.html"
+  },
+  {
+    "title": "관문 디펜스",
+    "tag": "STRATEGY",
+    "description": "숫자 관문을 골라 블루셔츠 군단을 키우세요.",
+    "url": "gate-defense/"
+  },
+  {
+    "title": "보글보글 라면가게",
+    "tag": "COOKING",
+    "description": "면부터 서빙까지, 정신없는 점심 장사를 시작해요.",
+    "url": "ramen/"
+  },
+  {
+    "title": "플라잉 슛 구출작전",
+    "tag": "ACTION",
+    "description": "시원한 슛과 태클로 동료를 구출하세요.",
+    "url": "football-rescue/"
+  },
+  {
+    "title": "출동! 셔츠 전대",
+    "tag": "ACTION",
+    "description": "색깔별 대원들과 달리고 싸우는 전대 액션.",
+    "url": "rangers/"
+  },
+  {
+    "title": "블루 체스",
+    "tag": "BOARD",
+    "description": "블루와 흑요석 군단의 한 수 승부.",
+    "url": "chess/"
+  }
+]
