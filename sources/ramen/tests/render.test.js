@@ -66,6 +66,7 @@ test("drag, pour, drop, reduced-motion and missing-background rendering are safe
     { pour: { pot: 0, start: g.clock } },
     { drop: { pot: 0, tool: "egg", start: g.clock } },
     { reducedMotion: true },
+    { preview: true },
   ])
     assert.doesNotThrow(() =>
       draw(ctx, g, { ...ui(), ...modifiers }, background),

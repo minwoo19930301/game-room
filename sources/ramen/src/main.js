@@ -1,4 +1,7 @@
 import "./styles.css";
+import { createCookingPreview } from "./preview.js";
+const PREVIEW = new URLSearchParams(location.search).get("preview") === "1";
+if (PREVIEW) document.body.classList.add("is-preview");
 import {
   createGame,
   startDay,
@@ -21,7 +24,10 @@ const canvas = host.querySelector("#game"),
   panel = host.querySelector(".menu-panel"),
   loadStatus = host.querySelector(".load-status");
 const g = createGame();
+const preview = PREVIEW ? createCookingPreview(g) : null;
+if (PREVIEW) { canvas.tabIndex = -1; canvas.setAttribute("aria-hidden", "true"); }
 const ui = {
+  preview: PREVIEW,
   pointer: null,
   drag: null,
   heldPot: null,
@@ -34,7 +40,10 @@ const ui = {
 };
 const abort = new AbortController();
 const listen = (el, name, fn, options = {}) =>
-  el.addEventListener(name, fn, { ...options, signal: abort.signal });
+  el.addEventListener(name, (event) => {
+    if (PREVIEW && /^(pointer|key|click|lostpointer)/.test(name)) return;
+    fn(event);
+  }, { ...options, signal: abort.signal });
 let last = performance.now(),
   frame = 0,
   loaded = false,
@@ -45,7 +54,9 @@ let last = performance.now(),
   sound = false,
   suspended = false,
   lastEvent = null,
-  disposed = false;
+  disposed = false,
+  fontsLoaded = false,
+  previewReady = false;
 const image = new Image();
 image.src = "./art/noodle-kitchen.png";
 image.onload = () => {
@@ -59,7 +70,7 @@ image.onerror = () => {
     "주방 그림을 불러오지 못했어요. 페이지를 새로고침해 주세요.";
 };
 function beep(type) {
-  if (!sound) return;
+  if (PREVIEW || !sound) return;
   try {
     audio ??= new AudioContext();
     audio.resume().catch(() => {});
@@ -260,6 +271,7 @@ listen(document, "keydown", (e) => {
   }
 });
 function pause() {
+  if (PREVIEW) return;
   cancelDrag();
   if (helpOpen) {
     closeHelp();
@@ -321,6 +333,7 @@ listen(menu, "click", (e) => {
   if (g.phase === "play") canvas.focus({ preventScroll: true });
 });
 function renderMenu(force = false) {
+  if (PREVIEW) { menu.hidden = true; return; }
   const key = helpOpen ? "help" : g.phase;
   if (!force && key === lastPhase) return;
   lastPhase = key;
@@ -371,14 +384,14 @@ function renderMenu(force = false) {
   panel.innerHTML = `<p class="eyebrow">${eyebrow}</p><h1>${title}</h1>${body}<div class="menu-buttons">${buttons}</div>`;
 }
 listen(document, "visibilitychange", () => {
-  if (document.hidden && g.phase === "play") {
+  if (!PREVIEW && document.hidden && g.phase === "play") {
     cancelDrag();
     togglePause(g);
     renderMenu(true);
   }
 });
 listen(window, "blur", () => {
-  if (g.phase === "play") {
+  if (!PREVIEW && g.phase === "play") {
     cancelDrag();
     togglePause(g);
     renderMenu(true);
@@ -386,7 +399,7 @@ listen(window, "blur", () => {
 });
 listen(window, "pagehide", (e) => {
   if (e.persisted) {
-    if (g.phase === "play") togglePause(g);
+    if (!PREVIEW && g.phase === "play") togglePause(g);
     cancelDrag();
   } else dispose();
 });
@@ -398,10 +411,14 @@ function loop(now) {
   if (disposed) return;
   const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
   last = now;
-  tick(g, dt);
+  if (PREVIEW) { if (loaded) preview.step(dt); } else tick(g, dt);
   if (ui.toast) ui.toast.time -= g.phase === "play" ? dt : 0;
   feedback();
   draw(ctx, g, ui, background);
+  if (PREVIEW && loaded && fontsLoaded && !previewReady) {
+    previewReady = true;
+    document.documentElement.dataset.previewReady = "true"; window.parent.postMessage({ type: "game-preview-ready" }, location.origin);
+  }
   renderMenu();
   frame = requestAnimationFrame(loop);
 }
@@ -418,6 +435,7 @@ function dispose() {
 if (import.meta.hot) import.meta.hot.dispose(dispose);
 renderMenu(true);
 document.fonts.ready.then(() => {
+  fontsLoaded = true;
   if (!disposed) draw(ctx, g, ui, background);
 });
 frame = requestAnimationFrame(loop);

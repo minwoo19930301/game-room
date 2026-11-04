@@ -1,0 +1,16 @@
+{
+  "title": "길 건너 한 판",
+  "description": "차를 피하고 통나무를 타고, 한 칸 더. 네이비 모험가의 3D 복셀 도로 건너기.",
+  "path": "/crossroad/",
+  "preview": "/crossroad/?preview=1",
+  "category": "web-games",
+  "tags": ["3D 복셀", "도로 건너기", "키보드 · 터치"],
+  "source": {
+    "repository": "https://github.com/flam-ing/flaming-games",
+    "path": "flamingo-road",
+    "revision": "c9f97373f327b33734a6b85c58847222b7858f88",
+    "license": "MIT",
+    "notice": "licenses/FLAMING-GAMES-MIT.txt"
+  },
+  "dependencies": [{ "name": "three", "version": "0.160.0", "license": "MIT", "notice": "licenses/THREE-MIT.txt" }]
+}

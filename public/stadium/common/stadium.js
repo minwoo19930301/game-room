@@ -11,6 +11,7 @@
     rivals: ['#5AA9FF', '#FFD166', '#4FD37A']
   };
   const NAMES = ['1P', '2P', '3P', '4P'];
+  const PREVIEW = new URLSearchParams(location.search).get('preview') === '1';
 
   function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt; r = Math.max(0, Math.min(255, r)); g = Math.max(0, Math.min(255, g)); b = Math.max(0, Math.min(255, b)); return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0'); }
 
@@ -50,6 +51,7 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
 
   // small badge "1P" / "CPU" in player color
   function drawPlayerTag(ctx, x, y, i, label) {
+    if (PREVIEW) return;
     const s = slots()[i]; const txt = label || (s.human ? s.name : s.name + ' CPU');
     ctx.save(); ctx.font = 'bold 13px sans-serif'; const w = ctx.measureText(txt).width + 14;
     ctx.fillStyle = s.color; ctx.beginPath(); ctx.roundRect(x - w / 2, y - 11, w, 22, 11); ctx.fill();
@@ -59,6 +61,7 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
   // --- sfx (WebAudio beeps) ---
   let actx = null;
   function beep(freq = 440, dur = 0.08, type = 'square', vol = 0.05) {
+    if (PREVIEW) return;
     try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(); const g = actx.createGain(); o.type = type; o.frequency.value = freq; g.gain.value = vol; o.connect(g); g.connect(actx.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur); o.stop(actx.currentTime + dur); } catch (e) { }
   }
   const sfx = {
@@ -81,7 +84,8 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
   const SKEY = 'blue-shirt-arcade:settings:v2';
   let settings = { humans: 1, keys: DEFAULT_KEYS.map(k => ({ ...k })) };
   try { const s = JSON.parse(localStorage.getItem(SKEY) || 'null'); if (s && s.keys && s.keys.length === 4) settings = { humans: Math.min(4, Math.max(1, s.humans | 0 || 1)), keys: s.keys.map((k, i) => ({ ...DEFAULT_KEYS[i], ...k })) }; } catch (e) { }
-  function saveSettings() { try { localStorage.setItem(SKEY, JSON.stringify(settings)); } catch (e) { } }
+  if (PREVIEW) settings.humans = 0;
+  function saveSettings() { if (PREVIEW) return; try { localStorage.setItem(SKEY, JSON.stringify(settings)); } catch (e) { } }
   function keyLabel(code) { if (!code) return '—'; const AR = { ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→' }; if (AR[code]) return AR[code]; return code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Arrow/, '').replace('Space', 'SPACE').replace('Enter', 'ENTER').replace('Comma', ',').replace('Period', '.').replace('Numpad', 'N').replace('Shift', 'SHIFT').replace('Control', 'CTRL'); }
 
   function slots() { return NAMES.map((name, i) => ({ i, name, color: palette.players[i], human: i < settings.humans, keys: settings.keys[i] })); }
@@ -92,9 +96,11 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
   // --- input ---
   const keys = {}; const pressed = {}; let captureCb = null;
   window.addEventListener('keydown', e => {
+    if (PREVIEW) return;
     if (captureCb) { e.preventDefault(); const cb = captureCb; captureCb = null; cb(e.code); return; }
+    if (e.target?.closest?.('button, a, input, select, textarea, summary')) return;
     if (!keys[e.code]) pressed[e.code] = true; keys[e.code] = true;
-    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault();
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
   });
   window.addEventListener('keyup', e => { keys[e.code] = false; });
   window.addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
@@ -113,11 +119,11 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
   //        result() -> { scores:[4 numbers], text?, lowerIsBetter? }  (legacy: { score, text, win } still accepted) }
   function Game(cfg) {
     const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d');
-    const W = 960, H = 540; const resolution=Math.min(2,window.devicePixelRatio||1);canvas.width=W*resolution;canvas.height=H*resolution;ctx.scale(resolution,resolution);
+    const W = 960, H = 540; const resolution=PREVIEW?1:Math.min(2,window.devicePixelRatio||1);canvas.width=W*resolution;canvas.height=H*resolution;ctx.scale(resolution,resolution);
     let state = 'title', t = 0, timeLeft = cfg.duration || 0, last = performance.now(), countdown = 0, result = null, endLock = 0, go = 0;
     let cur = { r: 0, c: 0 }, waiting = false, flash = 0;
     const hsKey = 'blue-shirt-arcade:' + cfg.id; let best = +(localStorage.getItem(hsKey) || 0);
-    function start() { if(!frames.length)return;state = 'count'; countdown = 3; cfg.init(); sfx.count(); }
+    function start() { if(!frames.length)return;state = PREVIEW ? 'play' : 'count'; countdown = 3; timeLeft=cfg.duration||0; cfg.init(); input._flush(); if(!PREVIEW)canvas.focus?.({preventScroll:true}); refreshLobby(); sfx.count(); }
     function finish() {
       if (state !== 'play') return;
       state = 'end'; endLock = 0.8; const r = cfg.result() || {};
@@ -128,25 +134,70 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
         const win = ranks[0] === 1 || slots().some(s => s.human && ranks[s.i] === 1);
         result = { scores: sc, ranks, order, text: r.text || '', win, score: sc[0] };
       } else result = { score: +r.score || 0, text: r.text || '', win: !!r.win };
-      if (result.score > best) { best = result.score; try { localStorage.setItem(hsKey, best); } catch (e) { } }
+      if (!PREVIEW && result.score > best) { best = result.score; try { localStorage.setItem(hsKey, best); } catch (e) { } }
       result.win ? sfx.win() : sfx.lose();
     }
-    const api = { W, H, ctx, get time() { return t; }, get timeLeft() { return timeLeft; }, finish, get best() { return best; }, state: () => state, get humans() { return settings.humans; }, slots, isHuman, nameOf, p: pInput };
+    const api = { W, H, ctx, get time() { return t; }, get timeLeft() { return timeLeft; }, finish, get best() { return best; }, state: () => state, get humans() { return settings.humans; }, preview: PREVIEW, slots, isHuman, nameOf, p: pInput };
+    // Native controls keep the local multiplayer choice visible and keyboard accessible.
+    const stage = document.createElement('div'); stage.className = 'game-stage';
+    canvas.parentNode.insertBefore(stage, canvas); stage.append(canvas); canvas.tabIndex = 0;
+    canvas.setAttribute('aria-label', cfg.title + ' 게임 화면');
+    const intro = {
+      says: '화살표 순서를 외우고, 각자의 방향키로 따라 하세요.',
+      sushi: '접시를 향해 이동하고 A로 집으세요. 60초 동안 많이 먹으면 승리!',
+      harden: '바위가 닿기 직전에 A를 누르세요. 끝까지 버티면 승리!',
+      stampede: '문제에 나온 친구가 지나갈 때마다 A를 한 번 누르세요.'
+    };
+    const lobby = document.createElement('section'); lobby.className = 'game-lobby';
+    lobby.setAttribute('aria-label', '게임 시작 및 참가 인원 선택');
+    lobby.innerHTML = `<div class="lobby-copy"><p class="eyebrow">STADIUM · 한 키보드로 최대 4명</p><h1></h1><p class="game-intro"></p><fieldset class="human-picker"><legend>함께할 사람 수</legend><div class="human-options"></div></fieldset><p class="roster-summary" aria-live="polite"></p><div class="lobby-actions"><button type="button" class="start-game">게임 시작 →</button><button type="button" class="key-settings">키 바꾸기</button></div><p class="start-hint">아래에서 각자의 키를 확인하세요.</p></div>`;
+    lobby.querySelector('h1').textContent = cfg.title;
+    lobby.querySelector('.game-intro').textContent = intro[cfg.id] || cfg.howto[0];
+    const choices = lobby.querySelector('.human-options');
+    for (let n=1;n<=4;n++) { const button=document.createElement('button');button.type='button';button.dataset.humans=String(n);button.innerHTML=`<strong>${n}인</strong><span>사람 ${n} · CPU ${4-n}</span>`;button.addEventListener('click',()=>selectHumans(n));choices.append(button); }
+    const startButton=lobby.querySelector('.start-game');startButton.addEventListener('click',start);
+    lobby.querySelector('.key-settings').addEventListener('click',()=>{state='setup';refreshLobby();canvas.focus({preventScroll:true});});
+    const keyboard=document.createElement('section');keyboard.className='keyboard-panel';keyboard.setAttribute('aria-label','참가자별 키보드 조작');
+    keyboard.innerHTML='<div class="keyboard-heading"><strong>한 키보드, 네 자리</strong><span>키보드 지원 · 게임패드 미지원</span></div><div class="keyboard-grid"></div><button type="button" class="return-lobby">인원 선택으로</button>';
+    const keyGrid=keyboard.querySelector('.keyboard-grid');
+    keyboard.querySelector('.return-lobby').addEventListener('click',()=>{state='title';captureCb=null;waiting=false;for(const key in keys)keys[key]=false;refreshLobby();choices.querySelector(`[data-humans="${settings.humans}"]`).focus();});
+    stage.append(lobby);stage.after(keyboard);
+    if(PREVIEW){document.body.classList.add('is-preview');canvas.tabIndex=-1;canvas.setAttribute('aria-hidden','true');lobby.remove();keyboard.remove();}
+    function selectHumans(n) { if(PREVIEW || !['title','end'].includes(state))return;settings.humans=Math.max(1,Math.min(4,n));saveSettings();refreshLobby();sfx.pop(); }
+    let uiSignature='';
+    function refreshLobby(){
+      if(PREVIEW)return;
+      lobby.hidden=state!=='title';
+      const sig=state+JSON.stringify(settings)+!!frames.length;if(sig===uiSignature)return;uiSignature=sig;
+      startButton.disabled=!frames.length;startButton.textContent=frames.length?`${settings.humans}인으로 시작 →`:'캐릭터 준비 중…';
+      choices.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(+button.dataset.humans===settings.humans)));
+      lobby.querySelector('.roster-summary').textContent=`사람 ${settings.humans}명 + CPU ${4-settings.humans}명 · 같은 화면에서 대결`;
+      keyGrid.replaceChildren();
+      slots().forEach(p=>{const card=document.createElement('div');card.className='keyboard-player'+(p.human?'':' is-cpu');card.style.setProperty('--player',p.color);const label=document.createElement('strong');label.textContent=`${p.name} · ${p.human?'사람':'CPU'}`;card.append(label);
+        if(p.human){const mappings=cfg.id==='says'?[['방향',['up','down','left','right']]]:cfg.id==='sushi'?[['이동',['up','down','left','right']],['집기',['a']]]:[['A 버튼',['a']]];
+          mappings.forEach(([name,actions])=>{const row=document.createElement('div'),caption=document.createElement('span');caption.textContent=name;row.append(caption);actions.forEach(a=>{const key=document.createElement('kbd');key.textContent=keyLabel(p.keys[a]);row.append(key)});card.append(row)});
+        }else{const text=document.createElement('span');text.textContent='컴퓨터가 조작해요';card.append(text)}keyGrid.append(card);
+      });
+      keyboard.querySelector('.return-lobby').hidden=state==='title';
+    }
+    refreshLobby();
+    let previewReadySent = false;
     let inited = false; // first init happens on the first frame, after `g = Game(...)` has been assigned in the game script
     function loop(now) {
       if (!inited) { inited = true; cfg.init(); }
       const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt; if (flash > 0) flash -= dt;
+      if (PREVIEW && state === 'title' && frames.length) start();
       if (state === 'title') {
         if (input.hit('Space') || input.hit('Enter')) start();
-        for (let d = 1; d <= 4; d++) if (input.hit('Digit' + d) || input.hit('Numpad' + d)) { settings.humans = d; saveSettings(); sfx.pop(); }
-        if (input.hit('KeyK') || input.hit('Tab')) { state = 'setup'; cur = { r: 0, c: 0 }; sfx.tap(); }
+        for (let d = 1; d <= 4; d++) if (input.hit('Digit' + d) || input.hit('Numpad' + d)) selectHumans(d);
+        if (input.hit('KeyK')) { state = 'setup'; cur = { r: 0, c: 0 }; sfx.tap(); }
       } else if (state === 'setup') {
         if (!waiting) {
           if (input.hit('ArrowUp')) cur.r = (cur.r + 3) % 4; if (input.hit('ArrowDown')) cur.r = (cur.r + 1) % 4;
           if (input.hit('ArrowLeft')) cur.c = (cur.c + 5) % 6; if (input.hit('ArrowRight')) cur.c = (cur.c + 1) % 6;
           if (input.hit('Enter') || input.hit('Space')) { waiting = true; captureCb = code => { if (code !== 'Escape') { settings.keys[cur.r][ACTIONS[cur.c]] = code; saveSettings(); sfx.good(); } waiting = false; }; }
           if (input.hit('KeyR')) { settings.keys = DEFAULT_KEYS.map(k => ({ ...k })); saveSettings(); flash = 0.5; sfx.pop(); }
-          if (input.hit('Escape') || input.hit('KeyK') || input.hit('Tab')) { state = 'title'; sfx.tap(); }
+          if (input.hit('Escape') || input.hit('KeyK')) { state = 'title'; sfx.tap(); }
         }
       } else if (state === 'count') {
         const before = Math.ceil(countdown); countdown -= dt;
@@ -158,35 +209,29 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
         if (cfg.duration && state === 'play') { timeLeft -= dt; if (timeLeft <= 0) { timeLeft = 0; finish(); } }
       } else if (state === 'end') {
         endLock -= dt;
-        for (let d = 1; d <= 4; d++) if (input.hit('Digit' + d) || input.hit('Numpad' + d)) { settings.humans = d; saveSettings(); sfx.pop(); }
-        if (endLock <= 0 && (input.hit('Space') || input.hit('Enter'))) start();
+        for (let d = 1; d <= 4; d++) if (input.hit('Digit' + d) || input.hit('Numpad' + d)) selectHumans(d);
+        if (endLock <= 0 && (PREVIEW || input.hit('Space') || input.hit('Enter'))) start();
       }
       ctx.clearRect(0, 0, W, H);
       cfg.draw(ctx);
-      if (state === 'play' && cfg.duration && cfg.id !== 'sushi') hud(ctx, `${timeLeft.toFixed(1)}s`, `BEST ${best}`);
-      if (state === 'play' && go > 0) big(ctx, 'GO!', 1 - Math.max(0, 0.8 - go) / 0.8 * 0.5);
-      if (state === 'title') titleScreen(ctx);
+      if(PREVIEW && !previewReadySent && frames.length && state === 'play'){previewReadySent=true;document.documentElement.dataset.previewReady = "true"; window.parent.postMessage({type:'game-preview-ready'},location.origin);}
+      if (!PREVIEW && state === 'play' && cfg.duration && cfg.id !== 'sushi') hud(ctx, `${timeLeft.toFixed(1)}s`, `BEST ${best}`);
+      if (!PREVIEW && state === 'play' && go > 0) big(ctx, 'GO!', 1 - Math.max(0, 0.8 - go) / 0.8 * 0.5);
+      if (!PREVIEW && state === 'title') titleScreen(ctx);
       if (state === 'setup') setupScreen(ctx);
       if (state === 'count') { overlayDim(ctx, 0.25); big(ctx, String(Math.ceil(countdown))); }
-      if (state === 'end') endScreen(ctx);
+      if (!PREVIEW && state === 'end') endScreen(ctx);
+      refreshLobby();
       input._flush();
       requestAnimationFrame(loop);
     }
-    canvas.addEventListener('pointerdown',e=>{const box=canvas.getBoundingClientRect(),x=(e.clientX-box.left)*W/box.width,y=(e.clientY-box.top)*H/box.height;if(state==='title'){if(y>=344&&y<=402&&x>=64&&x<=624){settings.humans=Math.min(4,Math.max(1,Math.floor((x-64)/140)+1));saveSettings();sfx.pop()}else if(y>=428)start()}else if(state==='end'&&endLock<=0)start();});
+    canvas.addEventListener('pointerdown',()=>{if(PREVIEW)return;if(state==='end'&&endLock<=0)start();else canvas.focus({preventScroll:true});});
     function hud(ctx, l, r) { ctx.save(); ctx.font = 'bold 22px sans-serif'; ctx.fillStyle = palette.ink; ctx.textAlign = 'left'; ctx.fillText(l, 16, 32); ctx.textAlign = 'right'; ctx.fillText(r, W - 16, 32); ctx.restore(); }
     function overlayDim(ctx, a) { ctx.save(); ctx.fillStyle = `rgba(12,24,31,${a})`; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     function big(ctx, s, alpha = 1) { ctx.save(); ctx.globalAlpha = alpha; ctx.font = 'bold 120px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = palette.white; ctx.strokeStyle = palette.pinkDark; ctx.lineWidth = 8; ctx.strokeText(s, W / 2, H / 2 + 40); ctx.fillText(s, W / 2, H / 2 + 40); ctx.restore(); }
     function titleScreen(ctx) {
       ctx.save();overlayDim(ctx,.35);
       const shade=ctx.createLinearGradient(0,0,750,0);shade.addColorStop(0,'#101f2ff5');shade.addColorStop(.72,'#152836f5');shade.addColorStop(1,'#15283600');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
-      ctx.textAlign='left';ctx.font='700 12px sans-serif';ctx.fillStyle='#c5d6d4';ctx.fillText('PARTY COLLECTION   /   '+({says:'MEMORY',sushi:'SUSHI',harden:'TIMING',stampede:'OBSERVATION'}[cfg.id]||'PLAY'),64,65);
-      ctx.fillStyle='#f6f3e8';ctx.font='800 46px sans-serif';ctx.fillText(cfg.title,60,132);
-      ctx.fillStyle='#c4b184';ctx.fillRect(64,158,44,3);
-      let yy=206;ctx.font='18px sans-serif';ctx.fillStyle='#d0d9dc';
-      for(const l of cfg.howto||[]){let chunk='';for(const word of l.split(' ')){if(ctx.measureText(chunk+word).width>515){ctx.fillText(chunk,64,yy);yy+=26;chunk=''}chunk+=word+' '}ctx.fillText(chunk,64,yy);yy+=31;}
-      slots().forEach((p,i)=>{const x=64+i*140;rr(ctx,x,344,128,55,9,p.human?'#f0ead9':'#ffffff0e');ctx.fillStyle=p.human?'#193443':'#8c9da6';ctx.font='700 17px sans-serif';ctx.fillText(p.name+(p.human?'':'  CPU'),x+13,367);ctx.font='11px sans-serif';ctx.fillText(p.human?`${keyLabel(p.keys.left)} ${keyLabel(p.keys.right)} · ${keyLabel(p.keys.a)}`:'컴퓨터',x+13,387);});
-      rr(ctx,64,428,258,55,9,frames.length?'#d6b370':'#596977');ctx.fillStyle='#182d39';ctx.font='800 18px sans-serif';ctx.fillText(frames.length?'게임 시작     →':'캐릭터 준비 중…',84,462);
-      ctx.font='13px sans-serif';ctx.fillStyle='#b1c1c6';ctx.fillText('SPACE / 클릭',343,460);ctx.fillText('숫자 1–4 : 사람 수   ·   K : 키 설정',64,510);
       drawHero(ctx,785,266,3.2,cfg.id==='sushi'?'eat':cfg.id==='harden'?'harden':cfg.id==='says'?'point':'idle',t);
       ctx.restore();
     }
@@ -239,5 +284,5 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const lerp = (a, b, k) => a + (b - a) * k;
 
-  window.STADIUM = { palette, drawHero, drawPlayerTag, Game, input, sfx, bg, text, rr, rand, clamp, lerp, shade, slots, humans, isHuman, nameOf, keyLabel, ACTIONS, settings: () => settings };
+  window.STADIUM = { preview: PREVIEW, palette, drawHero, drawPlayerTag, Game, input, sfx, bg, text, rr, rand, clamp, lerp, shade, slots, humans, isHuman, nameOf, keyLabel, ACTIONS, settings: () => settings };
 })();

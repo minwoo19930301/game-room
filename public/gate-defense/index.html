@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>게이트 러시 · Crowd Runner</title>
+<script>if(new URLSearchParams(location.search).get('preview')==='1')document.documentElement.dataset.preview='1';</script>
 <style>
   :root{
     --pink:#ff5c9e; --pink-deep:#e8437f; --cream:#fff6ea; --ink:#3a2b3f;
@@ -15,6 +16,9 @@
     -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
   #app{ position:fixed; inset:0; touch-action:none; }
   canvas{ display:block; }
+  html[data-preview="1"] #title,html[data-preview="1"] #over,html[data-preview="1"] #hud,html[data-preview="1"] #mute,html[data-preview="1"] #hint,html[data-preview="1"] .arcade-back{display:none!important}
+  html[data-preview="1"] body{pointer-events:none}
+  html[data-preview="1"] .count-label{font-size:clamp(14px,3.5vw,26px)}
 
   #ui{ position:fixed; inset:0; pointer-events:none; overflow:hidden; }
 
@@ -168,10 +172,11 @@ import * as THREE from 'three';
    유틸
 ============================================================ */
 const qs = new URLSearchParams(location.search);
+const PREVIEW = qs.get('preview') === '1';
 const SCENARIO = qs.get('scenario') || '';
-const AUTOSTART = qs.has('autostart') || !!SCENARIO;
+const AUTOSTART = PREVIEW || qs.has('autostart') || !!SCENARIO;
 const FREEZE = qs.has('freeze');
-const BOT = qs.has('bot');
+const BOT = PREVIEW || qs.has('bot');
 const SIMSEC = parseFloat(qs.get('simsec')||'0') || 0;
 
 const rand  = (a,b)=>a+Math.random()*(b-a);
@@ -189,8 +194,9 @@ const MUTE_KEY = 'gate-rush-muted';
 ============================================================ */
 const SFX = {
   ctx:null, master:null, noiseBuf:null,
-  muted: localStorage.getItem(MUTE_KEY)==='1',
+  muted: PREVIEW || localStorage.getItem(MUTE_KEY)==='1',
   ensure(){
+    if(PREVIEW)return;
     if(this.ctx) { if(this.ctx.state==='suspended') this.ctx.resume().catch(()=>{}); return; }
     try{
       this.ctx = new (window.AudioContext||window.webkitAudioContext)();
@@ -205,6 +211,7 @@ const SFX = {
   },
   ok(){ return this.ctx && this.ctx.state==='running' && !this.muted; },
   setMuted(m){
+    if(PREVIEW)return;
     this.muted = m; localStorage.setItem(MUTE_KEY, m?'1':'0');
     if(this.master) this.master.gain.value = m?0:0.5;
   },
@@ -1008,6 +1015,7 @@ const G = {
 };
 
 function score(){ return Math.floor(G.distance) + G.wavesCleared*100; }
+let previewRestartDelay = 0;
 
 /* ============================================================
    UI 요소
@@ -1070,6 +1078,7 @@ function spawnSlot(z){
    시작 / 리셋 / 게임오버
 ============================================================ */
 function resetRun(){
+  previewRestartDelay = 0;
   G.count = 10; G.distance = 0; G.wavesCleared = 0; G.wavesSpawned = 0;
   G.slotIndex = 0; G.speed = 13; G.diff = 0;
   G.targetX = 0; G.flockX = 0;
@@ -1107,6 +1116,7 @@ function startGame(){
   el.hud.classList.add('show');
   el.hint.classList.add('show');
   setTimeout(()=>el.hint.classList.remove('show'), 3500);
+  if(PREVIEW)document.body.dataset.previewReady = '1';
 }
 function gameOver(cause){
   if(G.mode!=='run') return;
@@ -1115,6 +1125,7 @@ function gameOver(cause){
   G.count = Math.max(0, G.count);
   SFX.defeat();
   G.shake = 1;
+  if(PREVIEW){ previewRestartDelay = 1.4; return; }
   const s = score();
   const isNew = s > G.best;
   if(isNew){ G.best = s; localStorage.setItem(BEST_KEY, String(s)); }
@@ -1138,12 +1149,14 @@ function tryStart(){
   return false;
 }
 window.addEventListener('pointerdown', e=>{
+  if(PREVIEW)return;
   if(e.target===el.mute || e.target===el.retry) return;
   SFX.ensure();
   if(G.mode==='title'){ startGame(); return; }
   dragging = true; lastPX = e.clientX;
 });
 window.addEventListener('pointermove', e=>{
+  if(PREVIEW)return;
   if(!dragging || G.mode!=='run') return;
   const dx = e.clientX - lastPX; lastPX = e.clientX;
   G.targetX = clamp(G.targetX + dx * 9 / window.innerWidth * 1.9, -3.4, 3.4);
@@ -1151,6 +1164,7 @@ window.addEventListener('pointermove', e=>{
 window.addEventListener('pointerup', ()=>{ dragging=false; });
 window.addEventListener('pointercancel', ()=>{ dragging=false; });
 window.addEventListener('keydown', e=>{
+  if(PREVIEW)return;
   keys[e.code] = true;
   if(e.code==='Space' || e.code==='Enter'){ SFX.ensure(); tryStart(); }
 });
@@ -1225,9 +1239,14 @@ function updateClash(dt){
 ============================================================ */
 const camLook = new THREE.Vector3();
 let elapsed = 0;
+let previewReadySent = false;
 
 function simulate(dt){
   elapsed += dt;
+  if(PREVIEW && G.mode==='over'){
+    previewRestartDelay -= dt;
+    if(previewRestartDelay <= 0)startGame();
+  }
   // 슬로모
   if(G.slowmoT > 0){
     G.slowmoT -= dt;
@@ -1438,6 +1457,10 @@ function renderFrame(){
   }
 
   renderer.render(scene, camera);
+  if(PREVIEW && !previewReadySent){
+    previewReadySent = true;
+    document.documentElement.dataset.previewReady = "true"; window.parent.postMessage({ type:'game-preview-ready' }, location.origin);
+  }
 }
 
 let lastT = performance.now();

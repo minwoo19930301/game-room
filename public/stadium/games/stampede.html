@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>친구 세기</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=2">');</script></head>
+<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>친구 세기</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=3">');</script></head>
 <body data-game="stampede"><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: 문제에 나온 친구가 지나갈 때마다 A 버튼 한 번 · 다 지나간 뒤에도 잠깐 입력 가능</span></div></div>
 <script src="../common/scenes.js?v=2"></script>
-<script>document.write('<script src="../common/stadium.js?v=2"><\/script>');</script>
+<script>document.write('<script src="../common/stadium.js?v=3"><\/script>');</script>
 <script>
 const { palette, drawHero, drawPlayerTag, Game, sfx, bg, text, rr, rand, clamp, lerp, slots } = STADIUM;
 // 원작 Streaming Stampede (specs/stampede.md): 5문제, 만점 10·10·20·20·40, 오차 1 = ½ · 2 = 1⁄10 · 3 이상 = 0점. 시간 제한 없음 — 5문제(+동점 결승) 뒤 g.finish().
@@ -144,7 +144,7 @@ g = Game({ id: 'stampede', title: '친구 세기', howto: ['무리 속에서 문
     const list = title ? demo.map(d => ({ ...d, x: 1010 - (d.off + t * 150) % 1070, y: LANES[d.lane], rot: -t * 150 / 9 })) : ents;
     list.slice().sort((a, b) => a.y - b.y).forEach(e => drawEnt(ctx, e, t)); // 뒤 레인 먼저, 앞 레인이 가린다
     // 플레이어 4명: 태그 · 누적 점수 · 숫자 패널(카운트 펄스 / 잠금 테두리 / 채점 색) · 친구 — 상태 상시 표시. 나무 카운터는 그 위에 덮어 "앉아 있는" 느낌
-    if (g.state() !== 'end') P.forEach((p, i) => {
+    if (!g.preview && g.state() !== 'end') P.forEach((p, i) => {
       const x = PX[i], sc = p.pulse > 0 ? 1 + 2.5 * p.pulse : 1, shown = phase === 'reveal' ? Math.round(lerp(p.from, p.score, clamp((pt - .4) / .6, 0, 1))) : p.score;
       drawPlayerTag(ctx, x, 402, i);
       rr(ctx, x - 120, 429, 58, 22, 11, 'rgba(24,44,51,.9)'); text(ctx, `${shown}점`, x - 91, 445, 15, palette.gold);

@@ -13,16 +13,7 @@ export function prepareCharacters(image, makeCanvas = (w,h)=>{const c=document.c
   frames.push({image:canvas,x:x0,y:y0,w:x1-x0+1,h:y1-y0+1,cellW});
  }
  const baseHeight=Math.max(...[0,1,2,4,5,6,7,11].map(i=>frames[i].h));
- const palettes=[[1,1,1],[1.75,.62,.60],[.62,1.3,.83],[1.72,1.30,.50]];
- const variants=palettes.map((rgb,variant)=>frames.map(f=>{
-  if(!variant)return f;
-  const image=makeCanvas(f.image.width,f.image.height),c=image.getContext('2d');c.drawImage(f.image,0,0);const data=c.getImageData(0,0,image.width,image.height);
-  for(let i=0;i<data.data.length;i+=4){const r=data.data[i],g=data.data[i+1],b=data.data[i+2];
-   // Only the cool fabric; keep skin, black hair, whites and shoe soles intact.
-   if(data.data[i+3]>0&&b>g+6&&b>r+10&&r<155&&g<165){const lum=(r*.25+g*.45+b*.3),mix=Math.min(1,(b-g-6)/12)*Math.min(1,(b-r-10)/16);data.data[i]=r+(Math.min(255,lum*rgb[0])-r)*mix;data.data[i+1]=g+(Math.min(255,lum*rgb[1])-g)*mix;data.data[i+2]=b+(Math.min(255,lum*rgb[2])-b)*mix;}
-  }
-  c.putImageData(data,0,0);return {...f,image};
- }));
+ const variants=[frames];
  return {variants,baseHeight};
 }
 export function drawCharacter(ctx,atlas,pose,x,y,height=160,{variant=0,facing=1,alpha=1,lean=0,squash=1}={}){

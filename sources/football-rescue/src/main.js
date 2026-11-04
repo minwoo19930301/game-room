@@ -1,19 +1,25 @@
 import './style.css';
+import {createMatchPreview} from './preview.js';
+const PREVIEW=new URLSearchParams(location.search).get('preview')==='1';
+if(PREVIEW)document.body.classList.add('is-preview');
 import {createGame,startGame,togglePause,nextStage,STAGES,describe} from './engine.js';
 import {InputBuffer} from './input.js';
 import {render} from './render.js';
 import {prepareCharacters} from './character-sprites.js';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const inputBuffer=new InputBuffer();
+let preview=null,previewReady=false;
+if(PREVIEW){canvas.tabIndex=-1;canvas.setAttribute('aria-hidden','true');}
 let game=createGame(),assets={},held=inputBuffer.held,edges=inputBuffer.edges,frame=0,last=0,acc=0,previousMode='',sound=false,audio=null,helpPaused=false;
 game.mode='title';
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const keyMap={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump',KeyZ:'tackle',KeyJ:'tackle',KeyX:'kick',KeyK:'kick',KeyC:'special',KeyL:'special'};
 const load=src=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('원화 로딩 실패: '+src));img.src=src;});
 function clearInput(){inputBuffer.clear();document.querySelectorAll('[data-hold]').forEach(el=>el.removeAttribute('aria-pressed'));}
-function press(action){if(game.mode!=='playing')return;inputBuffer.press(action);}
-function soundCue(type){if(!sound)return;try{audio??=new AudioContext();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),v=audio.createGain();o.connect(v);v.connect(audio.destination);const f={kick:170,hit:100,hurt:75,goal:660,win:880,jump:350,special:490,tackle:130,start:550}[type];if(!f)return;o.type=type==='hit'?'square':'triangle';o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.4,audio.currentTime+.08);v.gain.setValueAtTime(.035,audio.currentTime);v.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.15);o.start();o.stop(audio.currentTime+.17);}catch{sound=false;$('sound').textContent='소리 사용할 수 없음';}}
+function press(action){if(PREVIEW)return;if(game.mode!=='playing')return;inputBuffer.press(action);}
+function soundCue(type){if(PREVIEW||!sound)return;try{audio??=new AudioContext();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),v=audio.createGain();o.connect(v);v.connect(audio.destination);const f={kick:170,hit:100,hurt:75,goal:660,win:880,jump:350,special:490,tackle:130,start:550}[type];if(!f)return;o.type=type==='hit'?'square':'triangle';o.frequency.setValueAtTime(f,audio.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.4,audio.currentTime+.08);v.gain.setValueAtTime(.035,audio.currentTime);v.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.15);o.start();o.stop(audio.currentTime+.17);}catch{sound=false;$('sound').textContent='소리 사용할 수 없음';}}
 function panels(){
+ if(PREVIEW)return;
  const m=game.mode;$('menu').classList.toggle('hidden',m!=='title');$('pause-panel').classList.toggle('hidden',m!=='paused');$('results').classList.toggle('hidden',!['won','lost'].includes(m));$('brief').classList.toggle('hidden',!['brief','stageclear'].includes(m));$('pause').disabled=!['playing','paused'].includes(m);$('pause').textContent=m==='paused'?'계속':'일시정지';
  if(m==='brief'){$('brief-num').textContent=game.practice?'TRAINING':'ROUND 0'+(game.stage+1);$('brief-title').textContent=STAGES[game.stage].name;$('brief-copy').textContent=STAGES[game.stage].goal+'\n노란 경고가 뜨면 점프! X 슛으로 공을 날릴 수 있어요.';$('continue').textContent=game.practice?'훈련 시작':'경기장으로';}
  if(m==='stageclear'){$('brief-num').textContent='ROUND CLEAR';$('brief-title').textContent=game.stage===0?'골문이 열렸다!':'동료들이 돌아왔다!';$('brief-copy').textContent=`점수 ${game.score.toLocaleString()}\n다음 작전에 에너지 30을 회복합니다.`;$('continue').textContent='다음 작전';}
@@ -22,7 +28,7 @@ function panels(){
  if(m!==previousMode){clearInput();if(m==='playing')canvas.focus({preventScroll:true});else if(m==='brief'||m==='stageclear')$('continue').focus({preventScroll:true});else if(m==='paused')$('resume').focus({preventScroll:true});else if(m==='won'||m==='lost')$('again').focus({preventScroll:true});previousMode=m;}
 }
 function begin(practice=false){clearInput();game=createGame({difficulty:$('difficulty').value,practice});panels();}
-function pause(){if(togglePause(game)){clearInput();panels();}}
+function pause(){if(PREVIEW)return;if(togglePause(game)){clearInput();panels();}}
 $('start').onclick=()=>begin();$('practice').onclick=()=>begin(true);$('continue').onclick=()=>{if(game.mode==='stageclear'){nextStage(game);panels();}else{startGame(game);soundCue('start');panels();}};
 $('pause').onclick=pause;$('resume').onclick=pause;$('restart').onclick=()=>begin(game.practice);$('again').onclick=()=>begin(game.practice);
 for(const id of ['back-menu','result-menu'])$(id).onclick=()=>{game=createGame();game.mode='title';clearInput();panels();};
@@ -30,23 +36,24 @@ $('sound').onclick=()=>{sound=!sound;$('sound').setAttribute('aria-pressed',Stri
 $('help').onclick=()=>{helpPaused=game.mode==='playing';if(helpPaused){game.mode='paused';clearInput();panels();}$('help-dialog').showModal();};
 $('close-help').onclick=()=>$('help-dialog').close();$('help-dialog').addEventListener('close',()=>{if(helpPaused&&game.mode==='paused'){game.mode='playing';panels();}helpPaused=false;});
 window.addEventListener('keydown',event=>{
+ if(PREVIEW)return;
  if($('help-dialog').open)return;if(['INPUT','SELECT'].includes(event.target.tagName))return;
  if(event.code==='KeyP'||event.code==='Escape'){if(!event.repeat){event.preventDefault();pause();}return;}
  const action=keyMap[event.code];if(!action||game.mode!=='playing')return;event.preventDefault();press(action);
 });
-window.addEventListener('keyup',event=>{const action=keyMap[event.code];if(action){held.delete(action);if(game.mode==='playing')event.preventDefault();}});
-canvas.addEventListener('pointerdown',event=>{if(event.button!==0||game.mode!=='playing')return;event.preventDefault();canvas.focus({preventScroll:true});edges.add('tackle');});
+window.addEventListener('keyup',event=>{if(PREVIEW)return;const action=keyMap[event.code];if(action){held.delete(action);if(game.mode==='playing')event.preventDefault();}});
+canvas.addEventListener('pointerdown',event=>{if(PREVIEW)return;if(event.button!==0||game.mode!=='playing')return;event.preventDefault();canvas.focus({preventScroll:true});edges.add('tackle');});
 for(const b of document.querySelectorAll('[data-hold],[data-action]')){
  const action=b.dataset.hold||b.dataset.action;b.addEventListener('pointerdown',event=>{if(game.mode!=='playing')return;event.preventDefault();b.setPointerCapture(event.pointerId);press(action);b.setAttribute('aria-pressed','true');});
  const release=()=>{held.delete(action);b.removeAttribute('aria-pressed');};b.addEventListener('pointerup',release);b.addEventListener('pointercancel',release);b.addEventListener('lostpointercapture',release);
  b.addEventListener('keydown',event=>{if(event.code==='Enter'||event.code==='Space'){event.preventDefault();press(action);}});b.addEventListener('keyup',release);
 }
-function backgroundPause(){clearInput();if(game.mode==='playing'){game.mode='paused';panels();}}
+function backgroundPause(){if(PREVIEW)return;clearInput();if(game.mode==='playing'){game.mode='paused';panels();}}
 window.addEventListener('blur',backgroundPause);document.addEventListener('visibilitychange',()=>{if(document.hidden)backgroundPause();last=0;acc=0;});
 function tick(now){const elapsed=last?Math.min((now-last)/1000,.1):0;last=now;acc+=elapsed;
- while(acc>=1/60){inputBuffer.step(game,1/60);acc-=1/60;for(const event of game.events)soundCue(event.type);game.events=[];}
- render(ctx,game,assets,{reducedMotion:reduced});if(game.mode!==previousMode||Math.floor(now/300)!==Math.floor((now-elapsed*1000)/300))panels();frame=requestAnimationFrame(tick);
+ while(acc>=1/60){if(PREVIEW){preview.step(1/60);game=preview.game;}else inputBuffer.step(game,1/60);acc-=1/60;for(const event of game.events)soundCue(event.type);game.events=[];}
+ render(ctx,game,assets,{reducedMotion:reduced,preview:PREVIEW});if(PREVIEW&&!previewReady){previewReady=true;document.documentElement.dataset.previewReady = "true"; window.parent.postMessage({type:'game-preview-ready'},location.origin);}if(game.mode!==previousMode||Math.floor(now/300)!==Math.floor((now-elapsed*1000)/300))panels();frame=requestAnimationFrame(tick);
 }
 $('start').disabled=true;$('practice').disabled=true;$('status').textContent='경기장과 선수 원화를 불러오는 중…';
-Promise.all([load('./art/character-actions.png'),load('./art/stadium.png'),document.fonts.ready]).then(([image,stadium])=>{const characters=prepareCharacters(image);assets={player:characters,cast:characters,characters,stadium};$('start').disabled=false;$('practice').disabled=false;panels();frame=requestAnimationFrame(tick);}).catch(error=>{$('status').textContent=error.message+' 새로고침해주세요.';});
+Promise.all([load('./art/character-actions.png'),load('./art/stadium.png'),document.fonts.ready]).then(([image,stadium])=>{const characters=prepareCharacters(image);assets={player:characters,cast:characters,characters,stadium};if(PREVIEW){preview=createMatchPreview(inputBuffer);game=preview.game;}$('start').disabled=false;$('practice').disabled=false;panels();frame=requestAnimationFrame(tick);}).catch(error=>{$('status').textContent=error.message+' 새로고침해주세요.';});
 if(import.meta.hot)import.meta.hot.dispose(()=>cancelAnimationFrame(frame));

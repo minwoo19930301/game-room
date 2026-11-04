@@ -6,7 +6,9 @@ GlobalFonts.registerFromPath("public/fonts/Galmuri11.ttf", "Galmuri");
 const canvas = createCanvas(1280, 720),
   ctx = canvas.getContext("2d");
 const assets = {
-  heroes: await loadImage("public/art/rangers-atlas.png"),
+  characters: await loadImage("public/art/character-actions.png"),
+  ruby: await loadImage("public/art/ruby-actions.png"),
+  geumgang: await loadImage("public/art/geumgang-actions.png"),
   enemies: await loadImage("public/art/enemies-atlas.png"),
   makeCanvas: createCanvas,
   backdrops: await Promise.all(

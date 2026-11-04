@@ -12,7 +12,8 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
       canvas.height = h;
       return canvas;
     });
-  const characters = prepareCharacters(assets.characters, makeCanvas);
+  const characters = [assets.characters, assets.ruby, assets.geumgang].map(image => prepareCharacters(image, makeCanvas));
+  const heights = [174, 168, 198];
   const enemyTargets = [
     [
       [26, 35, 258, 261],
@@ -144,7 +145,7 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
   }
   function sprite(row,pose,x,y,scale=1,facing=1,alpha=1){
     const action=[0,1,2,4,4,5,3,6][pose]??0;
-    drawCharacter(ctx,characters,action,x,y,174*scale,{variant:row===2?3:row,facing,alpha});
+    drawCharacter(ctx,characters[row],action,x,y,heights[row]*scale,{facing,alpha});
   }
   function heroPose(p, g) {
     if (p.state === "hurt") return 7;
@@ -199,57 +200,68 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
       }
       return;
     }
+    const a = p.attack;
+    const active = a && a.time >= a.wind && a.time < a.wind + a.active;
+    const progress = a ? clamp((a.time - a.wind) / a.active, 0, 1) : 0;
     const pose = heroPose(p, g);
-    const bob =
-      !reduced && p.state === "idle" ? Math.sin(g.clock * 3) * 1.5 : 0;
-    const alpha =
-      p.invuln > 0.1 && !reduced && Math.floor(g.clock * 18) % 2 ? 0.65 : 1;
-    if(p.state==='hurt')drawCharacter(ctx,characters,7,x,y,174,{variant:g.pilot===2?3:g.pilot,facing:p.facing,alpha});
-    else sprite(g.pilot, pose, x, y + bob, 1, p.facing, alpha);
-    if (p.state === "guard") {
-      ctx.beginPath();
-      ctx.arc(
-        x + p.facing * 32,
-        y - 83,
-        64,
-        p.facing === 1 ? -1.2 : 1.9,
-        p.facing === 1 ? 1.2 : 4.4,
-      );
-      ctx.strokeStyle = "#aeeef1";
-      ctx.lineWidth = 5;
-      ctx.stroke();
+    const bob = !reduced && p.state === "idle" ? Math.sin(g.clock * 3) * 1.5 : 0;
+    const alpha = p.invuln > 0.1 && !reduced && Math.floor(g.clock * 18) % 2 ? 0.65 : 1;
+    let action = p.state === "hurt" ? 7 : [0, 1, 2, 4, 4, 5, 3, 6][pose];
+    let lean = 0, lift = 0, squash = 1;
+    if (a?.kind === "launcher") {
+      action = a.time < a.wind ? 10 : active ? 4 : 6;
+      if (active) { lift = Math.sin(progress * Math.PI) * 44; lean = -.16; }
+    } else if (a?.kind === "dash") {
+      action = a.time < a.wind ? 10 : active ? 5 : 2;
+      if (active) {
+        lift = 12; lean = -.12;
+        for (let i = 3; i > 0; i--) drawCharacter(ctx, characters[g.pilot], 5,
+          x - p.facing * i * 38, y - lift, heights[g.pilot], {facing:p.facing,alpha:.08+(3-i)*.06,lean});
+      }
+    } else if (a?.kind === "smash") {
+      action = a.time < a.wind ? 6 : active ? 10 : 4;
+      if (active) squash = .94;
+    } else if (p.state === "run" && !reduced) {
+      lean = g.pilot === 1 ? .08 : g.pilot === 2 ? -.025 : .035;
+      lift = Math.abs(Math.sin(p.age * (g.pilot === 1 ? 20 : 15))) * (g.pilot === 2 ? 2 : 5);
     }
-    if (
-      p.attack &&
-      p.attack.time > p.attack.wind &&
-      p.attack.time < p.attack.wind + p.attack.active
-    ) {
-      const a = p.attack;
-      ctx.save();
-      ctx.translate(x, y - 85);
-      ctx.scale(p.facing, 1);
-      if (a.kind === "launcher") {
-        ctx.beginPath();
-        ctx.arc(38, 0, 77, -1.65, 0.5);
-        ctx.strokeStyle = "#ffe7a9";
-        ctx.lineWidth = 7;
-        ctx.stroke();
-      } else if (a.kind === "smash") {
-        ellipse(0, 78, 190, 20, "#ffdb5d55", "#ffe297", 5);
+    drawCharacter(ctx, characters[g.pilot], action, x, y + bob - lift, heights[g.pilot], {facing:p.facing,alpha,lean,squash});
+    if (p.state === "guard") {
+      ctx.save();ctx.translate(x, y-86);ctx.scale(p.facing,1);
+      if(g.pilot===2) {
+        poly([[34,-66],[82,-43],[82,35],[54,69],[27,43],[27,-36]],"#f4c44520","#f9dc87",5);
+        line([[39,-42],[65,-25],[65,26],[53,42]],"#fff2bf",3);
       } else {
-        line(
-          [
-            [45, -5],
-            [a.range - 10, -20],
-            [a.range + 12, -5],
-          ],
-          "#ffe8b3",
-          5,
-        );
+        ctx.beginPath();ctx.arc(26,0,62,-1.2,1.2);ctx.strokeStyle=g.pilot===1?"#ffb7a8":"#aeeef1";ctx.lineWidth=5;ctx.stroke();
       }
       ctx.restore();
     }
+    if (!active) return;
+    ctx.save();ctx.translate(x,y);ctx.scale(p.facing,1);
+    if (a.kind === "launcher") {
+      // A vertical helix follows the rising uppercut, leaving the target visible.
+      for(let i=0;i<3;i++) {
+        ctx.beginPath();ctx.ellipse(44-i*13,-92-i*30,62+i*6,80+i*9,-.35,-1.7+progress*.6,1.2+progress*.6);
+        ctx.strokeStyle=["#e3fbff","#80d8ff","#3e94f5"][i];ctx.lineWidth=7-i*2;ctx.stroke();
+      }
+      line([[56,-29],[86,-121],[70,-204]],"#e4fbff",4);
+    } else if (a.kind === "dash") {
+      for(let i=0;i<5;i++) line([[-142-i*12,-45-i*22],[42+i*13,-60-i*16]],i%2?"#ffc7b0":"#ef7469",3+i%2);
+      ctx.beginPath();ctx.ellipse(97,-94,82,48,-.18,-1.25,1.25);ctx.strokeStyle="#fff0d4";ctx.lineWidth=8;ctx.stroke();
+    } else if (a.kind === "smash") {
+      const radius=90+progress*104;
+      ellipse(25,0,radius,18+progress*10,"#ffc64c18","#ffde85",6);
+      ellipse(25,0,radius*.7,12+progress*8,"#ffc64c18","#ffeabe",3);
+      for(let i=-2;i<=2;i++) {
+        const k=i*56;line([[k,-1],[k+18,-12],[k+34,-4],[k+49,-18]],"#ffdb75",4);
+        poly([[k+28,-13],[k+37,-48-progress*15],[k+51,-9]],"#e3ae63","#fff0ad",2);
+      }
+    } else {
+      line([[45,-90],[a.range-10,-105],[a.range+12,-90]],"#ffe8b3",5);
+    }
+    ctx.restore();
   }
+
   function drawEnemy(e, g) {
     const x = e.x - g.camera,
       y = GROUND - e.y;
@@ -697,7 +709,7 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
     ctx.beginPath();
     ctx.rect(20, 22, 88, 84);
     ctx.clip();
-    sprite(g.pilot, 0, 65, 184, 0.95, 1);
+    sprite(g.pilot, 0, 65, 184, 0.95 * 174 / heights[g.pilot], 1);
     ctx.restore();
     text(
       g.mech ? "合体 / 아케이드 로봇" : PILOTS[g.pilot].title,
@@ -974,7 +986,7 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
     },
     drawPilot(target, row) {
       target.clearRect(0, 0, target.canvas.width, target.canvas.height);
-      drawCharacter(target,characters,0,target.canvas.width/2,target.canvas.height-4,target.canvas.height*.96,{variant:row===2?3:row});
+      drawCharacter(target,characters[row],row===2?6:row===1?5:0,target.canvas.width/2,target.canvas.height-4,target.canvas.height*(row===2?.97:.91));
     },
     sprite,
   };

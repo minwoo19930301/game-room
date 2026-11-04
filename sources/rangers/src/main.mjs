@@ -8,6 +8,9 @@ import {
   PILOTS,
 } from "./engine.mjs";
 import { createRenderer } from "./renderer.mjs";
+import { createPreviewController } from "./preview.mjs";
+const preview = new URLSearchParams(location.search).get("preview") === "1";
+document.body.classList.toggle("preview-mode", preview);
 
 const canvas = document.querySelector("#game"),
   ctx = canvas.getContext("2d", { alpha: false });
@@ -70,7 +73,7 @@ const clear = () => {
   edges.clear();
 };
 function cue(type) {
-  if (!soundOn) return;
+  if (preview || !soundOn) return;
   try {
     audio ??= new (window.AudioContext || window.webkitAudioContext)();
     void audio.resume();
@@ -111,7 +114,7 @@ function cue(type) {
   }
 }
 function setPause(value) {
-  if (game.mode !== "combat") return;
+  if (preview || game.mode !== "combat") return;
   game.paused = value;
   clear();
   stepper.reset();
@@ -119,6 +122,7 @@ function setPause(value) {
   if (!value) canvas.focus({ preventScroll: true });
 }
 listen(document, "keydown", (e) => {
+  if (preview) return;
   if (!known.has(e.code)) return;
   if (e.code === "Escape") {
     e.preventDefault();
@@ -155,6 +159,7 @@ listen(document, "visibilitychange", () => {
 });
 listen(document.querySelector("#pause"), "click", () => setPause(!game.paused));
 listen(document.querySelector("#sound"), "click", () => {
+  if (preview) return;
   soundOn = !soundOn;
   document.querySelector("#sound").textContent =
     `소리 ${soundOn ? "ON" : "OFF"}`;
@@ -192,6 +197,7 @@ function start() {
   renderUI(true);
 }
 function renderUI(force = false) {
+  if (preview) { overlay.replaceChildren(); return; }
   const key = `${game.mode}:${game.paused}`;
   if (key === lastUI && !force) return;
   lastUI = key;
@@ -224,7 +230,7 @@ function renderUI(force = false) {
       renderUI(true);
     });
   } else if (game.mode === "select") {
-    overlay.innerHTML = `<section class="screen select-screen"><p class="eyebrow">SELECT YOUR LEAD RANGER</p><h2>첫 번째 대원을 선택하세요.</h2><div class="roster">${PILOTS.map((p, i) => `<button class="pilot" data-pilot="${i}" aria-pressed="${i === selected}"><canvas class="select-art" width="300" height="200" aria-hidden="true"></canvas><strong>${p.name} / ${["BLUE", "RED", "YELLOW"][i]}</strong><small>${p.note}<br>X · ${p.skill}</small></button>`).join("")}</div><div class="select-bottom"><button class="arcade-btn secondary" id="back">돌아가기</button><button class="arcade-btn" id="start">작전 시작</button></div></section>`;
+    overlay.innerHTML = `<section class="screen select-screen"><p class="eyebrow">SELECT YOUR LEAD RANGER</p><h2>첫 번째 대원을 선택하세요.</h2><div class="roster">${PILOTS.map((p, i) => `<button class="pilot" data-pilot="${i}" aria-pressed="${i === selected}"><canvas class="select-art" width="300" height="200" aria-hidden="true"></canvas><strong>${p.name} · ${["테크니션", "스피드", "헤비 가드"][i]}</strong><small>${p.note}<br><b>X · ${p.skill}</b><span class="pilot-traits">이동 ${["●●○", "●●●", "●○○"][i]}　위력 ${["●●○", "●○○", "●●●"][i]}</span></small></button>`).join("")}</div><div class="select-bottom"><button class="arcade-btn secondary" id="back">돌아가기</button><button class="arcade-btn" id="start">작전 시작</button></div></section>`;
     for (const button of overlay.querySelectorAll("[data-pilot]")) {
       renderer.drawPilot(
         button.querySelector("canvas").getContext("2d"),
@@ -276,12 +282,18 @@ async function load(src) {
   return img;
 }
 let renderer;
-const stepper = createStepper((i, dt) => update(game, i, dt));
+const previewController = preview ? createPreviewController(game) : null;
+let previewReady = false;
+const stepper = createStepper((i, dt) => previewController ? previewController.tick(dt) : update(game, i, dt));
 function frame(now) {
   if (disposed) return;
   const n = stepper.frame(now, input());
   if (n > 0) edges.clear();
   renderer.draw(game);
+  if (preview && !previewReady) {
+    previewReady = true;
+    document.documentElement.dataset.previewReady = "true"; parent.postMessage({ type: "game-preview-ready" }, location.origin);
+  }
   for (const e of game.events.splice(0)) cue(e.type);
   renderUI();
   const seconds = Math.floor(game.clock);
@@ -309,8 +321,10 @@ listen(window, "pagehide", (e) => {
 });
 listen(window, "pageshow", () => stepper.reset());
 try {
-  const [characters, enemies, ...backdrops] = await Promise.all([
+  const [characters, ruby, geumgang, enemies, ...backdrops] = await Promise.all([
     load("./art/character-actions.png"),
+    load("./art/ruby-actions.png"),
+    load("./art/geumgang-actions.png"),
     load("./art/enemies-atlas.png"),
     load("./art/glass-avenue.png"),
     load("./art/canal-junction.png"),
@@ -319,7 +333,7 @@ try {
   await document.fonts.ready;
   renderer = createRenderer(
     ctx,
-    { characters, enemies, backdrops },
+    { characters, ruby, geumgang, enemies, backdrops },
     { reducedMotion: reduced },
   );
   document

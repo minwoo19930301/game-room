@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>칠판 기억왕</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=2">');</script></head>
+<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>칠판 기억왕</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=3">');</script></head>
 <body data-game="says"><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: ↑↓←→ 로 화살표 순서 입력 (A·B 버튼은 쓰지 않음)</span></div></div>
 <script src="../common/scenes.js?v=2"></script>
-<script>document.write('<script src="../common/stadium.js?v=2"><\/script>');</script>
+<script>document.write('<script src="../common/stadium.js?v=3"><\/script>');</script>
 <script>
 // 칠판 기억왕 — 원작 Clefairy Says(포켓몬 스타디움 1 키즈 클럽). 규칙·타이밍·수치는 specs/says.md 기준.
 const { palette, drawHero, drawPlayerTag, Game, sfx, rr, text, rand, clamp, lerp, slots } = STADIUM;
@@ -38,7 +38,7 @@ function planAI(p) { // 라운드 시작 시 성공 여부(p_key^n)·틀릴 위�
 }
 function newRound() {
   const n = COUNTS[round]; seq = []; for (let i = 0; i < n; i++) seq.push(DIRS[Math.floor(rand(0, 4))]); // 4방향 균등, 연속 중복 허용, 4명이 같은 순서
-  speed = P.some(p => p.human && p.alive) ? 1 : 2; // 사람 전원 탈락 시 남은 라운드 2배속(규칙엔 영향 없음)
+  speed = g.preview || P.some(p => p.human && p.alive) ? 1 : 2; // 사람 전원 탈락 시 남은 라운드 2배속(규칙엔 영향 없음)
   limit = (n + 2) / speed; showIdx = -1; arrowT = 9; queue = []; target = null;
   P.forEach(p => { p.inp = []; p.done = false; p.res = null; p.poseT = 0; p.pose = p.alive ? 'idle' : 'sleep'; if (p.alive && !p.human) planAI(p); });
   said = false; setPhase('intro'); if (teacher.x !== HOME.x || teacher.y !== HOME.y) walkTo(HOME.x, HOME.y, 0.5);
@@ -124,7 +124,7 @@ g = Game({ id: 'says', title: '칠판 기억왕', howto: ['선생님이 칠판�
       if (phase === 'erase') { rr(ctx, ex - 36, BY + BH / 2 - 18, 72, 36, 6, '#4A4A4A'); rr(ctx, ex - 36, BY + BH / 2 - 18, 72, 12, 6, '#7A7A7A'); }
     }
     if (inp) { rr(ctx, BX, 222, BW, 14, 7, '#E8D8D0'); rr(ctx, BX, 222, BW * clamp(tLeft / limit, 0, 1), 14, 7, tLeft < limit * 0.3 ? palette.red : palette.pinkDark); text(ctx, `${tLeft.toFixed(1)}s`, BX + BW + 12, 235, 15, palette.ink, 'left'); }
-    text(ctx, `라운드 ${round + 1} / 5`, 16, 32, 22, palette.ink, 'left'); text(ctx, LABEL[phase] + (speed > 1 ? ' ×2' : ''), W - 16, 32, 18, palette.pinkDark, 'right');
+    if(!g.preview) text(ctx, `라운드 ${round + 1} / 5`, 16, 32, 22, palette.ink, 'left'); text(ctx, LABEL[phase] + (speed > 1 ? ' ×2' : ''), W - 16, 32, 18, palette.pinkDark, 'right');
     // 학생 4명: 책상, 머리 위 태그 + 피격 마크 5칸(○→✕) + 입력 진행 점 / 재현 글리프
     P.forEach((p, i) => {
       const x = SX[i], dy = p.pose === 'sleep' ? 18 : 0;
@@ -132,6 +132,7 @@ g = Game({ id: 'says', title: '칠판 기억왕', howto: ['선생님이 칠판�
       drawHero(ctx, x, SY + dy, 1, p.pose, t + i, p.color, { flip: p.flip && p.pose === 'run' });
       if (p.pose === 'dizzy') for (let k = 0; k < 3; k++) { const a = t * 7 + k * 2.1; star(ctx, x + 18 + Math.cos(a) * 24, SY - 46 + Math.sin(a) * 6, 6, palette.gold); }
       rr(ctx, x - 44, SY + 24, 88, 14, 5, '#b68b5d'); rr(ctx, x - 38, SY + 38, 7, 30, 2, '#5d564a'); rr(ctx, x + 31, SY + 38, 7, 30, 2, '#5d564a');
+      if(g.preview)return;
       drawPlayerTag(ctx, x, 292, i);
       for (let k = 0; k < MAXHP; k++) {
         const mx = x - 32 + k * 16, my = 318;
@@ -157,7 +158,7 @@ g = Game({ id: 'says', title: '칠판 기억왕', howto: ['선생님이 칠판�
     }
     parts.forEach(q => { ctx.globalAlpha = clamp(q.life * 2, 0, 1); star(ctx, q.x, q.y, 5, q.c); }); ctx.globalAlpha = 1;
     pops.forEach(q => { ctx.globalAlpha = clamp(q.life * 1.5, 0, 1); text(ctx, q.s, q.x + 1, q.y + 1, 22, 'rgba(58,36,48,.55)'); text(ctx, q.s, q.x, q.y, 22, q.c); }); ctx.globalAlpha = 1;
-    if (msgT > 0 && g.state() !== 'end') { ctx.save(); ctx.font = 'bold 20px sans-serif'; const tw = ctx.measureText(msg).width + 36, my = phase === 'judge' || phase === 'end' ? 190 : 244; ctx.globalAlpha = clamp(msgT * 3, 0, 1); rr(ctx, W / 2 - tw / 2, my, tw, 36, 18, 'rgba(58,36,48,.85)'); text(ctx, msg, W / 2, my + 25, 20, palette.white); ctx.restore(); } // 결과 화면(셸 오버레이) 위에는 자막을 남기지 않는다
+    if (!g.preview && msgT > 0 && g.state() !== 'end') { ctx.save(); ctx.font = 'bold 20px sans-serif'; const tw = ctx.measureText(msg).width + 36, my = phase === 'judge' || phase === 'end' ? 190 : 244; ctx.globalAlpha = clamp(msgT * 3, 0, 1); rr(ctx, W / 2 - tw / 2, my, tw, 36, 18, 'rgba(58,36,48,.85)'); text(ctx, msg, W / 2, my + 25, 20, palette.white); ctx.restore(); } // 결과 화면(셸 오버레이) 위에는 자막을 남기지 않는다
   },
   result() { // 생존자 100+(5-misses)*10 → 항상 탈락자(탈락 라운드×10) 위. 동일 misses는 공동 순위, 타이브레이크 없음
     return { scores: P.map(p => p.alive ? 100 + (MAXHP - p.misses) * 10 : p.elim * 10), text: P.map(p => p.alive ? `${p.name} HP ${MAXHP - p.misses}/${MAXHP}·피격 ${p.misses}회` : `${p.name} R${p.elim} 탈락`).join('  ·  ') };

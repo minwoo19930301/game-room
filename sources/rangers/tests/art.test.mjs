@@ -8,6 +8,8 @@ import { createRenderer } from "../src/renderer.mjs";
 import { createGame, begin, update } from "../src/engine.mjs";
 const assets = {
   characters: await loadImage("public/art/character-actions.png"),
+  ruby: await loadImage("public/art/ruby-actions.png"),
+  geumgang: await loadImage("public/art/geumgang-actions.png"),
   enemies: await loadImage("public/art/enemies-atlas.png"),
   backdrops: await Promise.all(
     ["glass-avenue", "canal-junction", "central-tower"].map((name) =>
@@ -86,4 +88,25 @@ test("all sprites stay visible during all eight action poses", () => {
         `${row}/${pose} below foot anchor`,
       );
     }
+});
+
+test('each teammate has twelve authored poses and a different silhouette, not a palette swap', () => {
+  const silhouettes = new Set();
+  for (const name of ['characters','ruby','geumgang']) {
+    const atlas = prepareCharacters(assets[name], createCanvas);
+    assert.equal(atlas.variants.length,1,'no recolored substitutes');
+    assert.equal(atlas.variants[0].length,12);
+    const hashes=new Set();
+    for (const frame of atlas.variants[0]) {
+      const data=frame.image.getContext('2d').getImageData(0,0,frame.image.width,frame.image.height).data;
+      hashes.add(createHash('sha256').update(data).digest('hex'));
+      assert.ok(frame.w>50&&frame.h>90,`${name}: missing pose`);
+    }
+    assert.equal(hashes.size,12);
+    const idle=atlas.variants[0][0];
+    const data=idle.image.getContext('2d').getImageData(0,0,idle.image.width,idle.image.height).data;
+    const alpha=Buffer.from(Array.from({length:data.length/4},(_,i)=>data[i*4+3]>128?255:0));
+    silhouettes.add(createHash('sha256').update(alpha).digest('hex'));
+  }
+  assert.equal(silhouettes.size,3,'identical silhouettes detect accidental recolors');
 });

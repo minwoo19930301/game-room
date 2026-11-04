@@ -18,5 +18,5 @@ test('all football action poses render without modifying simulation and retain d
 });
 test('all menus and game outcomes draw with the same authored character atlas',()=>{
  const g=createGame(),ctx=createCanvas(960,600).getContext('2d');
- for(const mode of ['title','brief','playing','paused','won','lost']){g.mode=mode;assert.doesNotThrow(()=>render(ctx,g,assets));}
+ for(const mode of ['title','brief','playing','paused','won','lost']){g.mode=mode;assert.doesNotThrow(()=>render(ctx,g,assets));assert.doesNotThrow(()=>render(ctx,g,assets,{preview:true}));}
 });

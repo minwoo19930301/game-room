@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>초밥 뷔페</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=2">');</script></head>
+<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>초밥 뷔페</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=3">');</script></head>
 <body data-game="sushi"><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: ←→↑↓ 이동 · A 버튼으로 젓가락 뻗기</span></div></div>
 <script src="../common/scenes.js?v=2"></script>
-<script>document.write('<script src="../common/stadium.js?v=2"><\/script>');</script>
+<script>document.write('<script src="../common/stadium.js?v=3"><\/script>');</script>
 <script>
 const { palette, drawHero, drawPlayerTag, Game, sfx, bg, text, rr, rand, slots } = STADIUM;
 let g;
@@ -168,7 +168,7 @@ g = Game({ id: 'sushi', title: '초밥 뷔페', duration: 60,
     for (const o of parts) { ctx.globalAlpha = o.life; ctx.fillStyle = o.c; ctx.beginPath(); ctx.arc(o.x, o.y, 5, 0, 7); ctx.fill(); }
     for (const o of pops) { ctx.globalAlpha = Math.min(1, o.t * 3); otext(ctx, o.s, o.x, o.y, o.s[0] === '×' ? 22 : 18, o.c); } ctx.globalAlpha = 1;
     // HUD 카드: 이름표 + 계산서 금액 + 현재 콤보
-    P.forEach((p, i) => { const [x, y] = CARD[i];
+    if(!g.preview) P.forEach((p, i) => { const [x, y] = CARD[i];
       rr(ctx, x, y, 180, 64, 12, 'rgba(255,255,255,.9)'); rr(ctx, x, y, 8, 64, 4, p.color);
       drawPlayerTag(ctx, x + 52, y + 17, i);
       if (top > 0 && p.bill === top) { rr(ctx, x + 122, y + 7, 48, 20, 10, palette.gold); text(ctx, '1위', x + 146, y + 22, 13, palette.ink); }
@@ -178,7 +178,7 @@ g = Game({ id: 'sushi', title: '초밥 뷔페', duration: 60,
     });
     if (st === 'play' && g.timeLeft < 0.3) otext(ctx, '끝!', 480, 250, 72, palette.gold);
     // 시작 직후 1.5초 가격표 띠 (원작 메뉴판 화면 대체)
-    if (st === 'play' && playT < 1.5) { ctx.save(); ctx.globalAlpha = Math.min(1, (1.5 - playT) / 0.35); rr(ctx, 160, 84, 640, 66, 12, 'rgba(58,36,48,.9)');
+    if (!g.preview && st === 'play' && playT < 1.5) { ctx.save(); ctx.globalAlpha = Math.min(1, (1.5 - playT) / 0.35); rr(ctx, 160, 84, 640, 66, 12, 'rgba(58,36,48,.9)');
       SUSHI.forEach((S, k) => { const x = 200 + k * 80; drawPlate(ctx, x, 108, k, 0.9); text(ctx, `${S.n} ${yen(S.v)}`, x, 142, 11, palette.white); }); ctx.restore(); }
   },
   result() { chef.say = '계산이요!'; chef.t = 9; return { scores: P.map(p => p.bill), text: '최고 계산서 ' + yen(Math.max(...P.map(p => p.bill))) }; }

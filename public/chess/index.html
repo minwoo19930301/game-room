@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>클래식 체스 · 한 수의 여유</title>
+<script>if(new URLSearchParams(location.search).get('preview')==='1')document.documentElement.dataset.preview='1';</script>
 <script src="https://cdn.jsdelivr.net/npm/babylonjs@7.54.3/babylon.js"></script>
 <style>
   :root{
@@ -16,6 +17,8 @@
   html,body{width:100%;height:100%;overflow:hidden;background:#17121d}
   body{font-family:var(--serif);color:#f0e8dc;-webkit-font-smoothing:antialiased}
   #renderCanvas{width:100%;height:100%;display:block;touch-action:none;outline:none}
+  html[data-preview="1"] #hud,html[data-preview="1"] .overlay,html[data-preview="1"] #titleScreen,html[data-preview="1"] .arcade-back{display:none!important}
+  html[data-preview="1"] body{pointer-events:none}
 
   /* ---------- shared UI ---------- */
   .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:30}
@@ -353,15 +356,16 @@ window.addEventListener('unhandledrejection', e => {
 
 /* ================= params / persistence ================= */
 const params    = new URLSearchParams(location.search);
+const P_PREVIEW = params.get('preview') === '1';
 const P_FEN     = params.get('fen');
 const P_MOVES   = params.get('moves');
-const P_NOSOUND = params.has('nosound');
-const P_NOAI    = params.has('noai') || params.has('moves') || params.has('selftest');
+const P_NOSOUND = P_PREVIEW || params.has('nosound');
+const P_NOAI    = P_PREVIEW || params.has('noai') || params.has('moves') || params.has('selftest');
 const P_AUTO    = params.has('autostart') || !!P_FEN || !!P_MOVES || params.has('selftest') || params.has('showpromo');
 
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v);}catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  set(k, v){ if(P_PREVIEW)return; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
 let muted = P_NOSOUND ? true : store.get('fc_mute', false);
 let stats = store.get('fc_stats', { w:0, l:0, d:0 });
@@ -370,7 +374,7 @@ difficulty = Math.min(2, Math.max(0, difficulty|0));
 
 /* ================= sound (WebAudio synth) ================= */
 let actx = null;
-function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
+function ac(){ if(P_PREVIEW)return null; if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return actx; }
 function env(g, t0, a, peak, dur){
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.linearRampToValueAtTime(peak, t0 + a);
@@ -496,7 +500,7 @@ const DIFF = [ {depth:1, noise:70, name:'쉬움'}, {depth:2, noise:14, name:'보
 let aiWorker = null, workerOK = false;
 const bestMoveSync = new Function('Chess','fen','depth','noise',
   AI_CORE + '\nreturn bestMove(fen, depth, noise, Chess);');
-try{
+if(!P_PREVIEW)try{
   const src = "import { Chess } from 'https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/esm/chess.js';\n"
     + AI_CORE
     + "\nself.onmessage = e => { const d = e.data; let mv = null; try{ mv = bestMove(d.fen, d.depth, d.noise, Chess); }catch(err){} postMessage({ id:d.id, mv }); };"
@@ -539,7 +543,7 @@ const canvas = document.getElementById('renderCanvas');
 const engine = new BABYLON.Engine(canvas, true, { stencil:true, antialias:true });
 // HiDPI/Retina: render at native device resolution (capped at 2x so the
 // post-process pipeline stays affordable on 3x mobile screens).
-function applyHiDPI(){ engine.setHardwareScalingLevel(1 / Math.min(window.devicePixelRatio || 1, 2)); }
+function applyHiDPI(){ engine.setHardwareScalingLevel(1 / Math.min(window.devicePixelRatio || 1, P_PREVIEW ? 1.5 : 2)); }
 applyHiDPI();
 const scene = new BABYLON.Scene(engine);
 scene.clearColor = new BABYLON.Color4(0.045, 0.075, 0.055, 1);
@@ -550,7 +554,7 @@ camera.lowerBetaLimit = 0.32; camera.upperBetaLimit = 1.32;
 camera.wheelDeltaPercentage = 0.015;
 camera.pinchDeltaPercentage = 0.012;
 camera.panningSensibility = 0;   // no panning — keeps board framed
-camera.attachControl(canvas, true);
+if(!P_PREVIEW)camera.attachControl(canvas, true);
 /* Responsive framing: in portrait the desktop framing (x offset for the side
    panel + vertical-fixed FOV) crops the board, so fit by WIDTH instead and
    center the target (the HUD restacks out of the way below 900px portrait). */
@@ -560,8 +564,9 @@ function applyCameraFraming(){
   if(portrait === camPortrait) return;   // only re-frame when orientation flips
   camPortrait = portrait;
   camera.fovMode = portrait ? BABYLON.Camera.FOVMODE_HORIZONTAL_FIXED : BABYLON.Camera.FOVMODE_VERTICAL_FIXED;
-  camera.setTarget(new BABYLON.Vector3(portrait ? 0 : 0.85, 0.1, -0.35));
+  camera.setTarget(new BABYLON.Vector3(P_PREVIEW || portrait ? 0 : 0.85, P_PREVIEW ? 0.35 : 0.1, P_PREVIEW ? 0 : -0.35));
   camera.alpha = CAM_HOME.alpha; camera.beta = CAM_HOME.beta; camera.radius = CAM_HOME.radius;
+  if(P_PREVIEW){ camera.beta = 0.98; camera.radius = 13.0; }
 }
 // Camera rotates with middle/right mouse OR touch (one-finger orbit on empty
 // space, two-finger pinch zoom). Left mouse drag stays reserved for pieces,
@@ -1409,7 +1414,7 @@ function deselect(){
   hideLegalDots();
 }
 function playerCanAct(){
-  return mode === 'playing' && !thinking && !animBusy && chess.turn() === playerColor && $('promoModal').classList.contains('hidden');
+  return !P_PREVIEW && mode === 'playing' && !thinking && !animBusy && chess.turn() === playerColor && $('promoModal').classList.contains('hidden');
 }
 function tryPlayerMove(from, to){
   const legal = legalMovesFrom(from).filter(m => m.to === to);
@@ -1751,15 +1756,48 @@ if(params.has('aitest')){
 }
 
 /* ================= render loop ================= */
+// The home carousel plays a legal opening through the same move animation as a game.
+const PREVIEW_MOVES = ['e4','e5','Nf3','Nc6','Bc4','Bc5','c3','Nf6','d4','exd4','cxd4','Bb4+','Nc3','Nxe4','O-O','Bxc3','d5','Bf6','dxc6','bxc6','Re1','d5','Bxd5','cxd5','Qxd5','Qxd5'];
+let previewStarted = false, previewMoveIndex = 0, previewMoveClock = 0, previewCameraClock = 0;
+function startPreview(){
+  if(!P_PREVIEW || previewStarted)return;
+  previewStarted = true;
+  startGame(START_FEN);
+  document.body.dataset.previewReady = '1';
+  scene.executeWhenReady(() => {
+    scene.onAfterRenderObservable.addOnce(() => {
+      document.documentElement.dataset.previewReady = "true"; window.parent.postMessage({ type:'game-preview-ready' }, location.origin);
+    });
+  });
+}
+scene.onBeforeRenderObservable.add(() => {
+  if(!P_PREVIEW || !previewStarted || document.hidden)return;
+  const dt = Math.min(engine.getDeltaTime()/1000, 0.05);
+  previewCameraClock += dt;
+  camera.alpha = CAM_HOME.alpha + Math.sin(previewCameraClock * 0.15) * 0.13;
+  camera.beta = 0.98 + Math.sin(previewCameraClock * 0.11) * 0.018;
+  previewMoveClock += dt;
+  if(animBusy || previewMoveClock < 1.8)return;
+  if(previewMoveIndex >= PREVIEW_MOVES.length || mode === 'over'){
+    if(previewMoveClock < 3)return;
+    startGame(START_FEN);
+    previewMoveIndex = 0;
+  }else{
+    commitMove(PREVIEW_MOVES[previewMoveIndex++], { fromAI:true });
+  }
+  previewMoveClock = 0;
+});
 engine.runRenderLoop(() => scene.render());
 window.addEventListener('resize', () => { applyHiDPI(); engine.resize(); applyCameraFraming(); });
 // Compile the actual piece instances before letting the player enter the board.
 let piecesReady=false;
 const startButton=$('btnStart');startButton.disabled=true;startButton.textContent='기물 준비 중…';
 if(mode!=='playing')rebuildBoard();
-Promise.all(Object.values(pieceBySquare).map(m=>m.material.forceCompilationAsync(m))).then(()=>{
+function markPiecesReady(){
  piecesReady=true;startButton.disabled=false;startButton.textContent='대국 시작';document.body.dataset.ready='1';
-}).catch(()=>{piecesReady=true;startButton.disabled=false;startButton.textContent='대국 시작';document.body.dataset.ready='1';});
+ startPreview();
+}
+Promise.all(Object.values(pieceBySquare).map(m=>m.material.forceCompilationAsync(m))).then(markPiecesReady).catch(markPiecesReady);
 </script>
 <a class="arcade-back" href="../index.html">← 게임 모음</a></body>
 </html>

@@ -1,56 +1,72 @@
 [
   {
-    "title": "칠판 기억왕",
-    "tag": "MEMORY",
-    "description": "칠판 위 화살표를 기억하는 네 사람의 한 판.",
-    "url": "stadium/games/says.html"
-  },
-  {
+    "id": "sushi",
     "title": "초밥 뷔페",
-    "tag": "PARTY",
-    "description": "눈앞을 지나가는 한 접시. 누구보다 빠르게!",
-    "url": "stadium/games/sushi.html"
+    "url": "stadium/games/sushi.html",
+    "players": "1–4인",
+    "genre": "PARTY"
   },
   {
+    "id": "says",
+    "title": "칠판 기억왕",
+    "url": "stadium/games/says.html",
+    "players": "1–4인",
+    "genre": "MEMORY"
+  },
+  {
+    "id": "harden",
     "title": "딱딱하게!",
-    "tag": "TIMING",
-    "description": "마지막 순간까지 기다렸다가, 단단하게 막아라.",
-    "url": "stadium/games/harden.html"
+    "url": "stadium/games/harden.html",
+    "players": "1–4인",
+    "genre": "TIMING"
   },
   {
+    "id": "stampede",
     "title": "친구 세기",
-    "tag": "OBSERVATION",
-    "description": "옷과 움직임을 살펴보고 정확히 세어보세요.",
-    "url": "stadium/games/stampede.html"
+    "url": "stadium/games/stampede.html",
+    "players": "1–4인",
+    "genre": "PARTY"
   },
   {
-    "title": "게이트 러시",
-    "tag": "RUNNER",
-    "description": "더하고, 곱하고, 돌파하는 군단 러너.",
-    "url": "gate-defense/"
+    "id": "crossroad",
+    "title": "길 건너 한 판",
+    "url": "crossroad/",
+    "players": "1인",
+    "genre": "VOXEL"
   },
   {
+    "id": "ramen",
     "title": "보글보글 라면가게",
-    "tag": "COOKING",
-    "description": "네 개의 냄비, 끊이지 않는 주문. 오늘도 영업 중.",
-    "url": "ramen/"
+    "url": "ramen/",
+    "players": "1인",
+    "genre": "COOKING"
   },
   {
-    "title": "플라잉 슛 구출작전",
-    "tag": "ACTION",
-    "description": "슛과 태클로 경기장을 돌파하고 동료를 구출하세요.",
-    "url": "football-rescue/"
-  },
-  {
+    "id": "rangers",
     "title": "출동! 수호전대",
-    "tag": "ACTION",
-    "description": "세 명의 대원. 세 개의 구역. 도시를 되찾을 시간.",
-    "url": "rangers/"
+    "url": "rangers/",
+    "players": "1인",
+    "genre": "ACTION"
   },
   {
+    "id": "football-rescue",
+    "title": "플라잉 슛 구출작전",
+    "url": "football-rescue/",
+    "players": "1인",
+    "genre": "ACTION"
+  },
+  {
+    "id": "gate-defense",
+    "title": "게이트 러시",
+    "url": "gate-defense/",
+    "players": "1인",
+    "genre": "RUNNER"
+  },
+  {
+    "id": "chess",
     "title": "클래식 체스",
-    "tag": "BOARD",
-    "description": "서두르지 않아도 좋아요. 다음 한 수를 찾아보세요.",
-    "url": "chess/"
+    "url": "chess/",
+    "players": "1인",
+    "genre": "BOARD"
   }
 ]

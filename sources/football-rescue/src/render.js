@@ -34,7 +34,7 @@ function HUD(ctx,g,assets){const p=g.player,s=STAGES[g.stage];ctx.save();
  rect(ctx,760,89,183,22,'#1e303c');rect(ctx,763,92,177*g.cheer/100,16,g.cheer>=60?'#ffda25':'#48bcd5',null);text(ctx,g.cheer>=60?'C  동료 준비 완료':'응원 '+Math.floor(g.cheer)+' / 60',752,107,12,g.cheer>=60?'#ffdc26':'#fff','right');
  ctx.restore();
 }
-export function render(ctx,g,assets,{reducedMotion=false}={}){
+export function render(ctx,g,assets,{reducedMotion=false,preview=false}={}){
  ctx.clearRect(0,0,W,H);ctx.save();
  if(g.shake>0&&!reducedMotion)ctx.translate(Math.sin(g.stageTime*130)*g.shake,Math.cos(g.stageTime*110)*g.shake*.5);
  const bg=assets.stadium;if(bg){const bw=W+170;const offset=-(g.camera/(STAGES[g.stage].length-W))*170;ctx.drawImage(bg,offset,0,bw,570);}else{ctx.fillStyle='#a5d6e9';ctx.fillRect(0,0,W,H);}
@@ -65,7 +65,7 @@ export function render(ctx,g,assets,{reducedMotion=false}={}){
  if(g.mode==='title'){sprite(ctx,assets.player,PLAYER_FRAMES,17,760,GROUND+12,.88,1);ball(ctx,830,GROUND-13,30,.4);sprite(ctx,assets.cast,CAST_FRAMES,12,900,GROUND+12,.46,1,-1);}
  ctx.restore();ctx.restore();
  // Mask portrait artwork to a deliberate HUD window instead of letting it spill over.
- if(g.mode!=='title'){
+ if(!preview&&g.mode!=='title'){
   rect(ctx,13,13,63,75,'#ffedb5');ctx.save();ctx.beginPath();ctx.rect(15,15,59,71);ctx.clip();drawCharacter(ctx,assets.characters,0,44,126,112);ctx.restore();
   HUD(ctx,g,assets);
   text(ctx,'PLAYER 07',15,103,10,'#fff');text(ctx,'SCORE '+String(g.score).padStart(6,'0'),94,101,14,'#fff');

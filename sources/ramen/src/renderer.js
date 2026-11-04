@@ -74,6 +74,7 @@ export function draw(c, g, ui, bg) {
   if(bg) c.drawImage(bg,0,0,WIDTH,HEIGHT);
   else {c.fillStyle='#294138';c.fillRect(0,0,WIDTH,HEIGHT);}
   const t = ui.reducedMotion ? 0 : g.clock;
+  if (!ui.preview) {
   // Top strip is part of the kitchen, not a dashboard wrapper.
   path(
     c,
@@ -119,6 +120,7 @@ export function draw(c, g, ui, bg) {
     18,
     "#fff5df",
   );
+  }
   // Ingredient shelves contain live draggable sprites, not pictures baked into art.
   for (const p of TOOL_POS.slice(0, 4)) {
     if (g.selection === p.id) {
@@ -142,7 +144,7 @@ export function draw(c, g, ui, bg) {
     } else {
       tool(c, p.id, p.x, p.y, 0.89);
     }
-    badge(
+    if (!ui.preview) badge(
       c,
       `${TOOL_NAMES[p.id]}  [${{ noodle: "N", spice: "S", egg: "E", green: "G" }[p.id]}]`,
       p.x,
@@ -187,10 +189,12 @@ export function draw(c, g, ui, bg) {
     );
     c.restore();
   }
+  if (!ui.preview) {
   const speech = g.speechTime > 0 ? g.speech : "토핑은 물이 끓을 때!";
   round(c, 585, 105, 200, 111, 20, "#fff8e7", "#c57679", 3);
   path(c, "M773 179L802 198 776 162", "#fff8e7", "#c57679", 3);
   wrap(c, speech, 685, 134, 16, 172, 24);
+  }
   // Stove enamel and individual burner rings are interactive foreground paths.
   path(c, "M74 498H595L614 819 57 819Z", "#244a3e", "#172f27", 3);
   path(c, "M60 818H615V853H55Z", "#183b30", "#11291f", 3);
@@ -266,7 +270,7 @@ export function draw(c, g, ui, bg) {
         3,
       );
     tool(c, id, p.x, p.y, id === "water" ? 0.93 : id === "mitt" ? 1.1 : 0.88);
-    badge(
+    if (!ui.preview) badge(
       c,
       `${TOOL_NAMES[id]} [${{ water: "W", mitt: "M", wash: "X" }[id]}]`,
       p.x,
@@ -275,7 +279,7 @@ export function draw(c, g, ui, bg) {
     );
   }
   tray(c, TRAY.x, TRAY.y, ui.heldPot !== null);
-  badge(c, "완성 냄비를 여기로!", TRAY.x, TRAY.y + 88, 239);
+  if (!ui.preview) badge(c, "완성 냄비를 여기로!", TRAY.x, TRAY.y + 88, 239);
   text(c, "SERVE", TRAY.x, TRAY.y - 105, 23, "#9a5465");
   if (g.selection === "mitt" && ui.heldPot === null)
     text(c, "장갑 선택 → 냄비 → 쟁반", 1030, 615, 17, "#8c4857");
