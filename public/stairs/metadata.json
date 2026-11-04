@@ -1,0 +1,17 @@
+{
+  "title": "끝없는 계단",
+  "description": "오르고, 돌아서고, 다시 한 계단. 두 가지 조작으로 구름 위에 도전하세요.",
+  "path": "/stairs/",
+  "preview": "/stairs/?preview=1",
+  "category": "web-games",
+  "tags": ["아케이드", "계단 오르기", "키보드 · 터치"],
+  "source": {
+    "repository": "https://github.com/flam-ing/flaming-games",
+    "path": "flamingo-stairs",
+    "revision": "c9f97373f327b33734a6b85c58847222b7858f88",
+    "license": "MIT",
+    "notice": "licenses/FLAMING-GAMES-MIT.txt"
+  },
+  "sharedArt": "../art/character-actions.png",
+  "rendering": "Canvas 2D with shaded steps and character pose sprites"
+}

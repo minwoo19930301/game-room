@@ -11,6 +11,7 @@ GAMES = [
     ('harden', '딱딱하게!', 'stadium/games/harden.html', '1–4인', 'TIMING'),
     ('stampede', '친구 세기', 'stadium/games/stampede.html', '1–4인', 'PARTY'),
     ('crossroad', '길 건너 한 판', 'crossroad/', '1인', 'VOXEL'),
+    ('stairs', '끝없는 계단', 'stairs/', '1인', 'ARCADE'),
     ('ramen', '보글보글 라면가게', 'ramen/', '1인', 'COOKING'),
     ('rangers', '출동! 수호전대', 'rangers/', '1인', 'ACTION'),
     ('football-rescue', '플라잉 슛 구출작전', 'football-rescue/', '1인', 'ACTION'),

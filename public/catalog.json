@@ -35,6 +35,13 @@
     "genre": "VOXEL"
   },
   {
+    "id": "stairs",
+    "title": "끝없는 계단",
+    "url": "stairs/",
+    "players": "1인",
+    "genre": "ARCADE"
+  },
+  {
     "id": "ramen",
     "title": "보글보글 라면가게",
     "url": "ramen/",
