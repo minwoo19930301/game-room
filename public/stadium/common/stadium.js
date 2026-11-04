@@ -1,11 +1,11 @@
-/* Blue Shirt Stadium shared library v2. Vanilla JS, no deps. Load before the game script.
+/* Party minigames shared library v2. Vanilla JS, no deps. Load before the game script.
    Provides: STADIUM.palette, drawHero, drawPlayerTag, Game shell (title/setup/countdown/play/end),
    per-player input (1–4 humans, rebindable keys, persisted), sfx, helpers, slots().
    Every game: 960x540 canvas, id="game". Shell handles overlays; game implements init/update(dt)/draw(ctx)/result(). */
 (function () {
   const palette = {
     pink: '#3478DB', pinkDark: '#2356A6', pinkLight: '#B8D7FF', cream: '#FFF6EA', sand: '#F5D9A6',
-    sky: '#BDEFFF', water: '#7FD3F2', grass: '#9BE38D', ink: '#3A2430', beak: '#2B2B2B', beakTip: '#111',
+    sky: '#BDEFFF', water: '#7FD3F2', grass: '#9BE38D', ink: '#25343D', beak: '#2B2B2B', beakTip: '#111',
     leg: '#F2A3C0', white: '#FFFFFF', gold: '#FFD166', red: '#FF5A5F', blue: '#5AA9FF', green: '#4FD37A', purple: '#B388FF',
     players: ['#3478DB', '#E76E56', '#FFD166', '#4FD37A'],
     rivals: ['#5AA9FF', '#FFD166', '#4FD37A']
@@ -15,25 +15,36 @@
   function shade(hex, amt) { const n = parseInt(hex.slice(1), 16); let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt; r = Math.max(0, Math.min(255, r)); g = Math.max(0, Math.min(255, g)); b = Math.max(0, Math.min(255, b)); return '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0'); }
 
   // pose: idle | jump | run | sleep | dig | eat | dizzy | harden | fly | ball | hit ; t = time; color = body; opts: {flip, rot, alpha}
-function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}) {
- ctx.save();ctx.translate(x,y);ctx.rotate(opts.rot||0);ctx.scale(opts.flip?-s:s,s);if(opts.alpha!=null)ctx.globalAlpha=opts.alpha;
- const crouch=['harden','ball','sleep'].includes(pose), run=pose==='run', wave=['fly','jump','hit'].includes(pose);
- ctx.translate(0,crouch?12:Math.sin(t*(run?18:3))*(run?2:1));
- const limb=(a,b,c,d,col,w)=>{ctx.strokeStyle=col;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a,b);ctx.lineTo(c,d);ctx.stroke();};
- const stride=run?Math.sin(t*18)*10:0;
- limb(-7,8,-8+stride,crouch?20:30,'#24334d',9);limb(7,8,8-stride,crouch?20:30,'#24334d',9);
- limb(-8+stride,crouch?21:31,-13+stride,crouch?21:31,'#122035',7);limb(8-stride,crouch?21:31,13-stride,crouch?21:31,'#122035',7);
- ctx.fillStyle=pose==='harden'?'#73869a':color;ctx.beginPath();ctx.roundRect(-15,-17,30,31,7);ctx.fill();
- ctx.fillStyle='#e2efff';ctx.beginPath();ctx.moveTo(-7,-17);ctx.lineTo(0,-10);ctx.lineTo(7,-17);ctx.fill();
- ctx.fillStyle='#fff';for(let j=0;j<3;j++)ctx.fillRect(-1,-6+j*6,2,2);
- const ay=wave?-31:crouch?-5:pose==='eat'?-13:8;
- limb(-14,-11,-23,ay,color,9);limb(14,-11,pose==='eat'?32:23,ay,color,9);
- limb(-23,ay,-24,ay-2,'#efbd95',7);limb(pose==='eat'?32:23,ay,pose==='eat'?35:24,ay-2,'#efbd95',7);
- ctx.fillStyle='#efbd95';ctx.beginPath();ctx.arc(0,-30,14,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#19283e';ctx.beginPath();ctx.arc(0,-34,14,Math.PI,Math.PI*2);ctx.lineTo(13,-29);ctx.lineTo(5,-37);ctx.lineTo(-5,-30);ctx.lineTo(-13,-28);ctx.fill();
- ctx.strokeStyle='#26344a';ctx.lineWidth=2;for(const ex of [-5,5]){ctx.beginPath();ctx.moveTo(ex-1,-29);ctx.lineTo(ex+1,pose==='sleep'?-29:-27);ctx.stroke();}
- ctx.beginPath();ctx.arc(0,-24,3,0,Math.PI);ctx.stroke();
- if(pose==='harden'){ctx.fillStyle='#a6c6df';ctx.strokeStyle='#e8f8ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-17,-10);ctx.lineTo(17,-10);ctx.lineTo(14,12);ctx.lineTo(0,23);ctx.lineTo(-14,12);ctx.closePath();ctx.fill();ctx.stroke();}
+const actorSheet = new Image();
+actorSheet.src = new URL('../../art/character-actions.png',document.currentScript.src).href;
+const frames=[], variants=new Map();
+actorSheet.onload=()=>{
+ const cw=actorSheet.naturalWidth/4,ch=actorSheet.naturalHeight/3;
+ for(let n=0;n<12;n++){
+  const tile=document.createElement('canvas');tile.width=Math.floor(cw);tile.height=Math.floor(ch);const c=tile.getContext('2d',{willReadFrequently:true});c.drawImage(actorSheet,(n%4)*cw,Math.floor(n/4)*ch,cw,ch,0,0,cw,ch);
+  const pix=c.getImageData(0,0,tile.width,tile.height);let l=tile.width,r=0,top=tile.height,bot=0;
+  for(let y=0;y<tile.height;y++)for(let x=0;x<tile.width;x++)if(pix.data[(y*tile.width+x)*4+3]>35){l=Math.min(l,x);r=Math.max(r,x);top=Math.min(top,y);bot=Math.max(bot,y)}
+  frames.push({tile,pix,l,r,top,bot,w:r-l+1,h:bot-top+1});
+ }
+};
+function actorTile(n,color){
+ const f=frames[n];if(!f)return null;
+ const key=n+color;if(variants.has(key))return variants.get(key);
+ const c=document.createElement('canvas');c.width=f.tile.width;c.height=f.tile.height;const ctx=c.getContext('2d');ctx.drawImage(f.tile,0,0);
+ // Jersey hues preserve skin and hair. Colors are required by the counting game.
+ if(color&&color.toLowerCase()!=='#3478db'){
+ const target=parseInt(color.slice(1),16),rgb=[target>>16&255,target>>8&255,target&255];const d=ctx.getImageData(0,0,c.width,c.height);
+ for(let j=0;j<d.data.length;j+=4){const r=d.data[j],g=d.data[j+1],b=d.data[j+2];const py=Math.floor(j/4/c.width);if(py>f.top+f.h*.30&&py<f.top+f.h*.70&&d.data[j+3]&&b>r*1.17&&b>g*1.03&&b>23&&r<140){const light=Math.max(.3,Math.min(1.15,b/105)),blend=Math.max(0,Math.min(1,(b-Math.max(r,g)-7)/11));for(let k=0;k<3;k++)d.data[j+k]=Math.min(255,d.data[j+k]*(1-blend)+rgb[k]*light*blend)}}ctx.putImageData(d,0,0);
+ }variants.set(key,c);return c;
+}
+function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}){
+ if(!frames.length)return;
+ const n=pose==='run'?1+Math.floor(t*9)%2:({idle:0,jump:3,eat:8,fly:9,harden:6,hit:7,dizzy:7,sleep:10,ball:10,dig:10,point:11}[pose]??0),f=frames[n];
+ const factor=85/frames[0].h;const w=f.w*factor,h=f.h*factor;
+ ctx.save();ctx.translate(x,y+34*s);ctx.rotate(opts.rot||0);ctx.scale(opts.flip?-s:s,s);if(opts.alpha!=null)ctx.globalAlpha=opts.alpha;
+ const bob=pose==='run'?Math.sin(t*18)*1.3:pose==='idle'?Math.sin(t*2.4)*.6:0;
+ ctx.drawImage(actorTile(n,color),f.l,f.top,f.w,f.h,-w/2,-h+bob,w,h);
+ if(pose==='harden'){ctx.strokeStyle='#d6efef99';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,-37,31,48,0,0,Math.PI*2);ctx.stroke()}
  ctx.restore();
 }
 
@@ -102,11 +113,11 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}) {
   //        result() -> { scores:[4 numbers], text?, lowerIsBetter? }  (legacy: { score, text, win } still accepted) }
   function Game(cfg) {
     const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d');
-    const W = canvas.width = 960, H = canvas.height = 540;
+    const W = 960, H = 540; const resolution=Math.min(2,window.devicePixelRatio||1);canvas.width=W*resolution;canvas.height=H*resolution;ctx.scale(resolution,resolution);
     let state = 'title', t = 0, timeLeft = cfg.duration || 0, last = performance.now(), countdown = 0, result = null, endLock = 0, go = 0;
     let cur = { r: 0, c: 0 }, waiting = false, flash = 0;
     const hsKey = 'blue-shirt-arcade:' + cfg.id; let best = +(localStorage.getItem(hsKey) || 0);
-    function start() { state = 'count'; countdown = 3; cfg.init(); sfx.count(); }
+    function start() { if(!frames.length)return;state = 'count'; countdown = 3; cfg.init(); sfx.count(); }
     function finish() {
       if (state !== 'play') return;
       state = 'end'; endLock = 0.8; const r = cfg.result() || {};
@@ -152,7 +163,7 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}) {
       }
       ctx.clearRect(0, 0, W, H);
       cfg.draw(ctx);
-      if (state === 'play' && cfg.duration) hud(ctx, `${timeLeft.toFixed(1)}s`, `BEST ${best}`);
+      if (state === 'play' && cfg.duration && cfg.id !== 'sushi') hud(ctx, `${timeLeft.toFixed(1)}s`, `BEST ${best}`);
       if (state === 'play' && go > 0) big(ctx, 'GO!', 1 - Math.max(0, 0.8 - go) / 0.8 * 0.5);
       if (state === 'title') titleScreen(ctx);
       if (state === 'setup') setupScreen(ctx);
@@ -161,20 +172,22 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}) {
       input._flush();
       requestAnimationFrame(loop);
     }
+    canvas.addEventListener('pointerdown',e=>{const box=canvas.getBoundingClientRect(),x=(e.clientX-box.left)*W/box.width,y=(e.clientY-box.top)*H/box.height;if(state==='title'){if(y>=344&&y<=402&&x>=64&&x<=624){settings.humans=Math.min(4,Math.max(1,Math.floor((x-64)/140)+1));saveSettings();sfx.pop()}else if(y>=428)start()}else if(state==='end'&&endLock<=0)start();});
     function hud(ctx, l, r) { ctx.save(); ctx.font = 'bold 22px sans-serif'; ctx.fillStyle = palette.ink; ctx.textAlign = 'left'; ctx.fillText(l, 16, 32); ctx.textAlign = 'right'; ctx.fillText(r, W - 16, 32); ctx.restore(); }
-    function overlayDim(ctx, a) { ctx.save(); ctx.fillStyle = `rgba(58,36,48,${a})`; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+    function overlayDim(ctx, a) { ctx.save(); ctx.fillStyle = `rgba(12,24,31,${a})`; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     function big(ctx, s, alpha = 1) { ctx.save(); ctx.globalAlpha = alpha; ctx.font = 'bold 120px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = palette.white; ctx.strokeStyle = palette.pinkDark; ctx.lineWidth = 8; ctx.strokeText(s, W / 2, H / 2 + 40); ctx.fillText(s, W / 2, H / 2 + 40); ctx.restore(); }
     function titleScreen(ctx) {
-      overlayDim(ctx, 0.55); ctx.save(); ctx.textAlign = 'center';
-      ctx.fillStyle = palette.cream; ctx.strokeStyle = palette.pinkDark; ctx.lineWidth = 6; ctx.font = 'bold 54px sans-serif'; ctx.strokeText(cfg.title, W / 2, 150); ctx.fillText(cfg.title, W / 2, 150);
-      ctx.font = '22px sans-serif'; ctx.fillStyle = palette.white; (cfg.howto || []).forEach((l, i) => ctx.fillText(l, W / 2, 205 + i * 32));
-      // player slots
-      const sl = slots();
-      sl.forEach((s, i) => { const x = W / 2 - 240 + i * 160; ctx.fillStyle = s.human ? s.color : 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.roundRect(x - 64, 350, 128, 54, 12); ctx.fill(); ctx.fillStyle = s.human ? (i === 2 ? palette.ink : palette.white) : 'rgba(255,255,255,.6)'; ctx.font = 'bold 20px sans-serif'; ctx.fillText(s.name + (s.human ? '' : ' CPU'), x, 373); ctx.font = '12px sans-serif'; ctx.fillText(s.human ? `${keyLabel(s.keys.left)}${keyLabel(s.keys.right)} ${keyLabel(s.keys.a)}` : '컴퓨터', x, 394); });
-      ctx.font = 'bold 26px sans-serif'; ctx.fillStyle = palette.gold; ctx.fillText('SPACE 로 시작', W / 2, H - 70);
-      ctx.font = 'bold 19px sans-serif'; ctx.fillStyle = palette.pinkLight; ctx.fillText(`같이 하려면 숫자 1~4 로 사람 수를 정하세요 (지금 ${settings.humans}명)`, W / 2, H - 36);
-      ctx.font = '14px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fillText('K : 키 설정', W / 2, H - 15);
-      drawHero(ctx, 90, H - 110, 1.6, 'idle', t); drawHero(ctx, W - 90, H - 110, 1.6, 'idle', t + 1, palette.players[1], { flip: true });
+      ctx.save();overlayDim(ctx,.35);
+      const shade=ctx.createLinearGradient(0,0,750,0);shade.addColorStop(0,'#101f2ff5');shade.addColorStop(.72,'#152836f5');shade.addColorStop(1,'#15283600');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
+      ctx.textAlign='left';ctx.font='700 12px sans-serif';ctx.fillStyle='#c5d6d4';ctx.fillText('PARTY COLLECTION   /   '+({says:'MEMORY',sushi:'SUSHI',harden:'TIMING',stampede:'OBSERVATION'}[cfg.id]||'PLAY'),64,65);
+      ctx.fillStyle='#f6f3e8';ctx.font='800 46px sans-serif';ctx.fillText(cfg.title,60,132);
+      ctx.fillStyle='#c4b184';ctx.fillRect(64,158,44,3);
+      let yy=206;ctx.font='18px sans-serif';ctx.fillStyle='#d0d9dc';
+      for(const l of cfg.howto||[]){let chunk='';for(const word of l.split(' ')){if(ctx.measureText(chunk+word).width>515){ctx.fillText(chunk,64,yy);yy+=26;chunk=''}chunk+=word+' '}ctx.fillText(chunk,64,yy);yy+=31;}
+      slots().forEach((p,i)=>{const x=64+i*140;rr(ctx,x,344,128,55,9,p.human?'#f0ead9':'#ffffff0e');ctx.fillStyle=p.human?'#193443':'#8c9da6';ctx.font='700 17px sans-serif';ctx.fillText(p.name+(p.human?'':'  CPU'),x+13,367);ctx.font='11px sans-serif';ctx.fillText(p.human?`${keyLabel(p.keys.left)} ${keyLabel(p.keys.right)} · ${keyLabel(p.keys.a)}`:'컴퓨터',x+13,387);});
+      rr(ctx,64,428,258,55,9,frames.length?'#d6b370':'#596977');ctx.fillStyle='#182d39';ctx.font='800 18px sans-serif';ctx.fillText(frames.length?'게임 시작     →':'캐릭터 준비 중…',84,462);
+      ctx.font='13px sans-serif';ctx.fillStyle='#b1c1c6';ctx.fillText('SPACE / 클릭',343,460);ctx.fillText('숫자 1–4 : 사람 수   ·   K : 키 설정',64,510);
+      drawHero(ctx,785,266,3.2,cfg.id==='sushi'?'eat':cfg.id==='harden'?'harden':cfg.id==='says'?'point':'idle',t);
       ctx.restore();
     }
     function setupScreen(ctx) {
@@ -197,7 +210,7 @@ function drawHero(ctx,x,y,s=1,pose='idle',t=0,color='#3478db',opts={}) {
     function endScreen(ctx) {
       overlayDim(ctx, 0.6); ctx.save(); ctx.textAlign = 'center';
       const title = result.win ? '승리!' : '종료';
-      ctx.fillStyle = palette.cream; ctx.strokeStyle = palette.pinkDark; ctx.lineWidth = 6; ctx.font = 'bold 54px sans-serif'; ctx.strokeText(title, W / 2, 120); ctx.fillText(title, W / 2, 120);
+      ctx.fillStyle = palette.cream; ctx.strokeStyle = palette.pinkDark; ctx.lineWidth = 6; ctx.font = 'bold 48px sans-serif'; ctx.strokeText(title, W / 2, 120); ctx.fillText(title, W / 2, 120);
       if (result.scores) {
         const sl = slots();
         result.order.forEach((pi, k) => {

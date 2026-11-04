@@ -292,3 +292,16 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+/* Warm noodle-shop edition */
+:root{color:#e8ddbd;background:#161e1a;font-family:'Apple SD Gothic Neo',system-ui,sans-serif}
+body{background:#161e1a;background-image:radial-gradient(ellipse at top,#344332,#161e1a 75%)}
+.cabinet{width:min(1236px,calc((100svh - 110px)*1.33333 + 32px));padding-top:18px}
+.topline{color:#c8cfb7;font-size:12px;letter-spacing:.5px}.topline strong{font-weight:700}
+.top-actions button{border:1px solid #75836b;background:#243d32;color:#e7ebdb;box-shadow:none;border-radius:5px;font-size:11px}
+.stage{border:1px solid #9b84544d;border-radius:10px;background:#2b3d2a;box-shadow:0 20px 60px #0007}
+.menu{background:linear-gradient(90deg,#11271de8,#11271d55 65%,transparent);justify-content:flex-start;padding:6%}
+.menu-panel{width:54%;max-width:570px;padding:30px 26px;text-align:left;background:#f6ecd8f5;border:1px solid #b6a77e;border-radius:5px;box-shadow:0 16px 50px #0004}
+.menu .eyebrow{font-size:12px;color:#7b724f;letter-spacing:2px}.menu h1{color:#243d2d;text-shadow:none;font-size:clamp(24px,4.1vw,48px);font-weight:900;letter-spacing:-2px;line-height:1.2}
+.menu p{font-size:clamp(12px,1.4vw,17px);color:#665e47;line-height:1.9}.menu .menu-buttons{justify-content:flex-start}.menu button{font-size:15px;padding:13px 20px;background:#284c37;border:0;color:#fff3d4;box-shadow:0 3px #163423;border-radius:4px;font-weight:750}.menu button.secondary{background:#e6d5ad;color:#655534;border:0;box-shadow:0 3px #cdbb90}.caption{color:#9cae98;font-size:11px}.manual{background:#25392c;color:#d2ddc8;border:1px solid #536348}.key{background:#38533f;border-color:#667953;color:#f3edda}.access-controls button{background:#e7ddc3;color:#284430;border-color:#a7b28d}.load-status{color:#33482f;background:#e7ddc3;border-color:#9ba984}
+@media(max-width:650px){.menu{padding:4%}.menu-panel{width:80%;padding:20px}.topline{font-size:9px}.menu button{font-size:12px;padding:10px 12px}}

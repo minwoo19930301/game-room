@@ -1,7 +1,8 @@
 import './style.css';
 import {createGame,startGame,togglePause,nextStage,STAGES,describe} from './engine.js';
 import {InputBuffer} from './input.js';
-import {render,keyChroma} from './render.js';
+import {render} from './render.js';
+import {prepareCharacters} from './character-sprites.js';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const inputBuffer=new InputBuffer();
 let game=createGame(),assets={},held=inputBuffer.held,edges=inputBuffer.edges,frame=0,last=0,acc=0,previousMode='',sound=false,audio=null,helpPaused=false;
@@ -47,5 +48,5 @@ function tick(now){const elapsed=last?Math.min((now-last)/1000,.1):0;last=now;ac
  render(ctx,game,assets,{reducedMotion:reduced});if(game.mode!==previousMode||Math.floor(now/300)!==Math.floor((now-elapsed*1000)/300))panels();frame=requestAnimationFrame(tick);
 }
 $('start').disabled=true;$('practice').disabled=true;$('status').textContent='경기장과 선수 원화를 불러오는 중…';
-Promise.all([load('./art/player-atlas.png'),load('./art/cast-atlas.png'),load('./art/stadium.png'),document.fonts.ready]).then(([player,cast,stadium])=>{assets={player:keyChroma(document.createElement('canvas'),player),cast:keyChroma(document.createElement('canvas'),cast),stadium};$('start').disabled=false;$('practice').disabled=false;panels();frame=requestAnimationFrame(tick);}).catch(error=>{$('status').textContent=error.message+' 새로고침해주세요.';});
+Promise.all([load('./art/character-actions.png'),load('./art/stadium.png'),document.fonts.ready]).then(([image,stadium])=>{const characters=prepareCharacters(image);assets={player:characters,cast:characters,characters,stadium};$('start').disabled=false;$('practice').disabled=false;panels();frame=requestAnimationFrame(tick);}).catch(error=>{$('status').textContent=error.message+' 새로고침해주세요.';});
 if(import.meta.hot)import.meta.hot.dispose(()=>cancelAnimationFrame(frame));

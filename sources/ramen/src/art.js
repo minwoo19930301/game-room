@@ -97,7 +97,7 @@ export function spice(c, x, y, s = 1) {
     "#982c36",
   );
   path(c, "M-30-31Q0-39 31-30L28 30Q0 24-30 32Z", "#ffdd70", null);
-  text(c, "블루", 0, -11, 18, "#b73a30");
+  text(c, "비법", 0, -11, 18, "#b73a30");
   text(c, "스프", 0, 13, 21, "#b73a30");
   c.strokeStyle = "#ff8775";
   c.lineWidth = 3;

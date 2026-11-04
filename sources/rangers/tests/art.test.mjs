@@ -3,11 +3,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
-import { prepareAtlas } from "../src/atlas.mjs";
-import { HERO_CELLS, createRenderer } from "../src/renderer.mjs";
+import { prepareCharacters } from "../src/character-sprites.js";
+import { createRenderer } from "../src/renderer.mjs";
 import { createGame, begin, update } from "../src/engine.mjs";
 const assets = {
-  heroes: await loadImage("public/art/rangers-atlas.png"),
+  characters: await loadImage("public/art/character-actions.png"),
   enemies: await loadImage("public/art/enemies-atlas.png"),
   backdrops: await Promise.all(
     ["glass-avenue", "canal-junction", "central-tower"].map((name) =>
@@ -16,22 +16,17 @@ const assets = {
   ),
   makeCanvas: createCanvas,
 };
-test("all 24 hero poses resolve to distinct complete RGBA components", () => {
-  const frames = prepareAtlas(assets.heroes, HERO_CELLS, createCanvas).flat();
-  assert.equal(frames.length, 24);
-  assert.equal(new Set(frames.map((f) => String(f.sourceRect))).size, 24);
-  for (const frame of frames) {
-    assert.ok(frame.width > 145);
-    assert.ok(frame.height > 170);
-    assert.ok(frame.width < 280);
-    assert.ok(frame.height < 330);
-    const data = frame.image
-      .getContext("2d")
-      .getImageData(0, 0, frame.width, frame.height).data;
-    let transparent = 0;
-    for (let j = 3; j < data.length; j += 4) if (!data[j]) transparent++;
-    assert.ok(transparent > 1000);
-  }
+test("all twelve authored poses have transparent padding and distinct pixels", () => {
+ const atlas=prepareCharacters(assets.characters,createCanvas), hashes=new Set();
+ assert.equal(atlas.variants[0].length,12);
+ for(const frame of atlas.variants[0]){
+  assert.ok(frame.w>50&&frame.h>90,'empty or clipped character');
+  const data=frame.image.getContext('2d').getImageData(0,0,frame.image.width,frame.image.height).data;
+  let transparent=0,filled=0;for(let i=3;i<data.length;i+=4){if(data[i]===0)transparent++;else filled++;}
+  assert.ok(transparent>1000&&filled>1000,'alpha or subject missing');
+  hashes.add(createHash('sha256').update(data).digest('hex'));
+ }
+ assert.equal(hashes.size,12);
 });
 test("three illustrated stage files are distinct", async () => {
   const hashes = await Promise.all(

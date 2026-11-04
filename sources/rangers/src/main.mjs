@@ -214,7 +214,7 @@ function renderUI(force = false) {
   }
   if (game.mode === "title") {
     overlay.innerHTML =
-      '<section class="screen"><div class="title-copy"><p class="eyebrow">한 도시. 세 개의 신호.</p><h1>출동 준비.</h1><p>유리빛 대로에서 중앙 관제탑까지.<br>세 대원을 교대하며 도시를 되찾아라.</p></div><div class="title-actions"><button class="arcade-btn" id="select">출동하기</button><button class="arcade-btn secondary" id="help">조작 방법</button></div><p class="caption">BLUE SHIRT ARCADE · 1 PLAYER · 3 STAGES</p></section>';
+      '<section class="screen"><div class="title-copy"><p class="eyebrow">한 도시. 세 개의 신호.</p><h1>출동!<br>수호전대</h1><p>유리빛 대로에서 중앙 관제탑까지.<br>세 대원을 교대하며 도시를 되찾아라.</p></div><div class="title-actions"><button class="arcade-btn" id="select">출동하기</button><button class="arcade-btn secondary" id="help">조작 방법</button></div><p class="caption">CITY GUARDIANS · 1 PLAYER · 3 STAGES</p></section>';
     wire("#select", () => {
       game.mode = "select";
       renderUI(true);
@@ -259,7 +259,7 @@ function renderUI(force = false) {
     });
   } else if (game.mode === "victory" || game.mode === "defeat") {
     const win = game.mode === "victory";
-    overlay.innerHTML = `<section class="screen modal-screen"><p class="eyebrow">${win ? "MISSION COMPLETE" : "SIGNAL LOST"}</p><h2>${win ? "고생했다. 셔츠 전대!" : "대원들이 잠시 물러납니다."}</h2><div class="result-stats"><div><strong>${game.score}</strong><span>SCORE</span></div><div><strong>${game.bestCombo}</strong><span>BEST COMBO</span></div></div><p>${win ? "세 구역 돌파 · 두 보스 격파 · 아케이드 로봇 합체 완료" : "기력을 모아 특수기로 방패를 깨고, 피해를 입기 전에 교대해 보세요."}</p><div class="buttons"><button class="arcade-btn" id="restart">다시 출동</button><button class="arcade-btn secondary" id="title">제목으로</button></div></section>`;
+    overlay.innerHTML = `<section class="screen modal-screen"><p class="eyebrow">${win ? "MISSION COMPLETE" : "SIGNAL LOST"}</p><h2>${win ? "고생했다. 수호전대!" : "대원들이 잠시 물러납니다."}</h2><div class="result-stats"><div><strong>${game.score}</strong><span>SCORE</span></div><div><strong>${game.bestCombo}</strong><span>BEST COMBO</span></div></div><p>${win ? "세 구역 돌파 · 두 보스 격파 · 아케이드 로봇 합체 완료" : "기력을 모아 특수기로 방패를 깨고, 피해를 입기 전에 교대해 보세요."}</p><div class="buttons"><button class="arcade-btn" id="restart">다시 출동</button><button class="arcade-btn secondary" id="title">제목으로</button></div></section>`;
     wire("#restart", start);
     wire("#title", () => {
       game.mode = "title";
@@ -309,8 +309,8 @@ listen(window, "pagehide", (e) => {
 });
 listen(window, "pageshow", () => stepper.reset());
 try {
-  const [heroes, enemies, ...backdrops] = await Promise.all([
-    load("./art/rangers-atlas.png"),
+  const [characters, enemies, ...backdrops] = await Promise.all([
+    load("./art/character-actions.png"),
     load("./art/enemies-atlas.png"),
     load("./art/glass-avenue.png"),
     load("./art/canal-junction.png"),
@@ -319,7 +319,7 @@ try {
   await document.fonts.ready;
   renderer = createRenderer(
     ctx,
-    { heroes, enemies, backdrops },
+    { characters, enemies, backdrops },
     { reducedMotion: reduced },
   );
   document

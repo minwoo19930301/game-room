@@ -14,7 +14,7 @@ import {
 } from "./engine.js";
 import { draw, hit, WIDTH, HEIGHT } from "./renderer.js";
 const host = document.querySelector("#app");
-host.innerHTML = `<div class="cabinet"><header class="topline"><strong>BLUE SHIRT KITCHEN · 보글보글 라면가게</strong><div class="top-actions"><button id="sound" aria-pressed="false">소리 켜기</button><button id="pause" aria-label="일시정지">잠깐 쉬기</button><button id="help">요리법</button></div></header><div class="stage"><canvas id="game" width="1200" height="900" tabindex="0" aria-label="블루의 라면가게. W 물, N 면, S 스프, E 달걀, G 파. 재료 선택 후 숫자 1부터 4로 냄비에 넣습니다. M과 냄비 번호로 냄비를 든 다음 Enter로 서빙합니다."></canvas><section class="menu" aria-label="게임 메뉴"><div class="menu-panel"></div></section><div class="load-status">주방을 준비하고 있어요…</div></div><p class="caption">재료를 냄비로 끌어 넣고, 다 익은 냄비는 쟁반으로! 터치는 재료 → 냄비, 장갑 → 냄비 → 쟁반도 가능해요.</p><details class="manual"><summary>키보드 조작과 요리법 펼치기</summary><p><span class="key">W</span> 물 · <span class="key">N</span> 면 · <span class="key">S</span> 스프 · <span class="key">E</span> 달걀 · <span class="key">G</span> 파 · <span class="key">X</span> 설거지<br>도구를 고르고 <span class="key">1–4</span> 냄비에 넣어요. <span class="key">M</span> 장갑 → <span class="key">1–4</span> 냄비 들기 → <span class="key">Enter</span> 서빙. <span class="key">Esc</span> 들고 있는 도구 취소 · <span class="key">P</span> 일시정지.<br>끓기 시작하면 토핑을 넣고, 익힘 막대의 두 초록 선 사이에서 서빙하면 완벽해요. 주문과 토핑이 같아야 해요. 탄 냄비는 여분 3개까지 교체할 수 있어요.</p><div class="access-controls" aria-label="접근성 조리 도구">${TOOLS.map((t) => `<button data-tool="${t}">${TOOL_NAMES[t]}</button>`).join("")}</div><div class="access-controls" aria-label="접근성 냄비 조작">${[1, 2, 3, 4].map((n) => `<button data-pot="${n - 1}">${n}번 냄비</button>`).join("")}<button id="accessible-serve">쟁반에 서빙</button><button id="restart">처음부터</button></div></details><p class="sr-only" id="announcer" aria-live="polite"></p></div>`;
+host.innerHTML = `<div class="cabinet"><header class="topline"><strong>보글보글 라면가게</strong><div class="top-actions"><button id="sound" aria-pressed="false">소리 켜기</button><button id="pause" aria-label="일시정지">잠깐 쉬기</button><button id="help">요리법</button></div></header><div class="stage"><canvas id="game" width="1200" height="900" tabindex="0" aria-label="보글보글 라면가게. W 물, N 면, S 스프, E 달걀, G 파. 재료 선택 후 숫자 1부터 4로 냄비에 넣습니다. M과 냄비 번호로 냄비를 든 다음 Enter로 서빙합니다."></canvas><section class="menu" aria-label="게임 메뉴"><div class="menu-panel"></div></section><div class="load-status">주방을 준비하고 있어요…</div></div><p class="caption">재료를 냄비로 끌어 넣고, 다 익은 냄비는 쟁반으로! 터치는 재료 → 냄비, 장갑 → 냄비 → 쟁반도 가능해요.</p><details class="manual"><summary>키보드 조작과 요리법 펼치기</summary><p><span class="key">W</span> 물 · <span class="key">N</span> 면 · <span class="key">S</span> 스프 · <span class="key">E</span> 달걀 · <span class="key">G</span> 파 · <span class="key">X</span> 설거지<br>도구를 고르고 <span class="key">1–4</span> 냄비에 넣어요. <span class="key">M</span> 장갑 → <span class="key">1–4</span> 냄비 들기 → <span class="key">Enter</span> 서빙. <span class="key">Esc</span> 들고 있는 도구 취소 · <span class="key">P</span> 일시정지.<br>끓기 시작하면 토핑을 넣고, 익힘 막대의 두 초록 선 사이에서 서빙하면 완벽해요. 주문과 토핑이 같아야 해요. 탄 냄비는 여분 3개까지 교체할 수 있어요.</p><div class="access-controls" aria-label="접근성 조리 도구">${TOOLS.map((t) => `<button data-tool="${t}">${TOOL_NAMES[t]}</button>`).join("")}</div><div class="access-controls" aria-label="접근성 냄비 조작">${[1, 2, 3, 4].map((n) => `<button data-pot="${n - 1}">${n}번 냄비</button>`).join("")}<button id="accessible-serve">쟁반에 서빙</button><button id="restart">처음부터</button></div></details><p class="sr-only" id="announcer" aria-live="polite"></p></div>`;
 const canvas = host.querySelector("#game"),
   ctx = canvas.getContext("2d"),
   menu = host.querySelector(".menu"),
@@ -47,7 +47,7 @@ let last = performance.now(),
   lastEvent = null,
   disposed = false;
 const image = new Image();
-image.src = "./art/kitchen.png";
+image.src = "./art/noodle-kitchen.png";
 image.onload = () => {
   background = image;
   loaded = true;
@@ -334,12 +334,12 @@ function renderMenu(force = false) {
     `<button data-action="${action}" class="${secondary ? "secondary" : ""}" ${!loaded && ["start", "practice"].includes(action) ? "disabled" : ""}>${label}</button>`;
   if (key === "title") {
     eyebrow = "냄비 네 개, 정성은 가득!";
-    title = "블루의<br>보글보글 라면가게";
-    body = "<p>뜨끈한 냄비를 들고 찾아온<br>블루의 주방의 작은 영업 이야기</p>";
+    title = "보글보글<br>라면가게";
+    body = "<p>뜨끈한 냄비를 들고 찾아온<br>작은 가게의 바쁜 영업 이야기</p>";
     buttons =
       button("가게 열기", "start") + button("느긋한 연습", "practice", true);
   } else if (key === "help") {
-    eyebrow = "블루의 비밀 레시피";
+    eyebrow = "우리 가게 비밀 레시피";
     title = "맛있는 한 냄비";
     body =
       "<ol><li>주전자를 골라 냄비에 물을 붓고 면과 스프를 넣어요.</li><li>5초 후 보글보글! 주문표를 보고 달걀·파를 넣어요.</li><li>면 익힘 막대가 초록 선 사이일 때 장갑으로 냄비를 쟁반에!</li><li>같은 주문 손님께 자동 서빙. 완벽한 라면은 연속 팁!</li><li>탄 냄비는 설거지로 교체. 여분 냄비는 하루 3개예요.</li></ol>";
@@ -357,7 +357,7 @@ function renderMenu(force = false) {
     buttons = button("다음 날 가게 열기", "next");
   } else if (key === "won") {
     eyebrow = "별 셋! 우리 동네 소문난 맛집";
-    title = "블루 사장님, 최고!";
+    title = "사장님, 최고!";
     body = `<p>3일 영업을 모두 마쳤어요.<br>누적 매출 ${g.total.toLocaleString("ko-KR")}원</p>`;
     buttons =
       button("다시 영업하기", "start") + button("연습하기", "practice", true);

@@ -9,4 +9,6 @@ Selection requested 2026-11-04. Original repositories remain unchanged.
 
 Source documentation and font license files are retained with each game. Original character images retained in source assets for provenance are not used to draw the new protagonists. Source docs/previews describe the original games, not this edition.
 
-Changes: curated portal; human Canvas character renderer; human instanced geometry for crowd; traditional chess pieces; procedural ramen kitchen; player selection text/colors; in-game return navigation; isolated high-score settings for Stadium; workspace-aware font test path and corrected build font URLs.
+Changes: curated portal; new human sprite sheet and action-specific pose mapping; human instanced geometry for the crowd runner; sculpted traditional chess pieces; illustrated ramen kitchen; new Stadium environments and menus; player selection text/colors; in-game return navigation; isolated high-score settings for Stadium; workspace-aware font test path and corrected build font URLs.
+
+The 12-pose character sheet and ramen kitchen were generated for this remake on 2026-11-04. Character appearance was based on the user's existing `navy-blender-vtuber/reference/front.png`. The original Navy 3D mesh is not bundled here. Portal preview images are local screenshots of the playable games.

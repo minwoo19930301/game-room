@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>블루 체스 — Blue Shirt vs Obsidian</title>
+<title>클래식 체스 · 한 수의 여유</title>
 <script src="https://cdn.jsdelivr.net/npm/babylonjs@7.54.3/babylon.js"></script>
 <style>
   :root{
@@ -236,6 +236,24 @@
     #moveCard.open h3::after{content:" ▾"}
     #statusPill{bottom:56px;padding:8px 22px;font-size:13.5px}
   }
+
+/* Quiet tournament-room presentation. */
+:root{--gold:#bfa575;--gold-hi:#e9d5ab;--gold-dim:#847254;--ink:#101916;--plum:#182521;--rose:#eee5d4;--rose-hi:#f5eedf;--panel:rgba(19,29,25,.92);--panel-line:rgba(189,170,133,.23);--serif:ui-serif,'AppleMyungjo',Georgia,serif}
+html,body{background:#101916}body{color:#eee5d4}button{letter-spacing:0!important;text-indent:0!important}button:focus-visible{outline:2px solid #ead9b3;outline-offset:4px}
+#titleScreen{background:radial-gradient(ellipse at 50% 40%,rgba(16,25,22,.2),rgba(11,18,15,.9));backdrop-filter:blur(3px)}
+#titleScreen::before{background:none}#titleScreen>div{padding:35px 48px!important;border:1px solid #bfa57542;border-radius:6px;background:linear-gradient(145deg,#26392fec,#15251ff5);box-shadow:0 35px 100px #0008}
+.title-emblem{font-family:Georgia,serif;font-size:70px;color:#e0c798;filter:none;margin-bottom:12px;line-height:1}#titleScreen h1{font-size:clamp(36px,5vw,54px);letter-spacing:-1.8px;text-indent:0;background:none;color:#f1e9d8;filter:none;font-weight:600}.title-sub{font-family:system-ui,sans-serif;font-size:9px;letter-spacing:3px;text-indent:0;color:#bdad8b;margin-top:18px}
+.title-rule{margin:24px auto;width:90%;opacity:.4}.diff-label{font-family:system-ui,sans-serif;color:#b8c4bc;font-size:12px;letter-spacing:0;text-indent:0}.diff-row{gap:8px;margin-bottom:22px}.diff-btn{font-family:system-ui,sans-serif;border-radius:4px;min-width:106px;padding:15px 12px;background:#ffffff05;font-size:14px}.diff-btn small{font-size:10px;letter-spacing:0;text-indent:0;color:#a8b2ab}.diff-btn.sel{background:#c4b3911a;border-color:#d4bb8f;box-shadow:none;color:#fff3db}.gbtn{font-family:system-ui,sans-serif;font-size:15px;background:#dbc49c;color:#18271f;border:0;border-radius:4px;box-shadow:none;padding:15px 52px}.gbtn:hover{background:#ead6b5;box-shadow:none}.gbtn:disabled{opacity:.55;cursor:wait;transform:none}#statLine{font-family:system-ui,sans-serif;color:#8e9f94;font-size:11px;letter-spacing:.5px;margin-top:22px}
+#topBar{height:70px;padding:0 28px;background:linear-gradient(#0c1712d9,transparent)}#gameTitle{letter-spacing:-.5px;font-size:21px;font-weight:600;color:#f3e9d7}#gameTitle span{font-family:system-ui,sans-serif;font-size:9px;letter-spacing:2px;color:#9eab9e;margin-left:20px}.ibtn{width:38px;height:38px;border-radius:4px;backdrop-filter:blur(12px);font-size:17px}.ibtn:hover{background:#415345}.card{border-radius:6px!important;background:#13221de8!important;box-shadow:0 16px 40px #0002!important}.card h3{font-family:system-ui,sans-serif;font-size:10px!important;letter-spacing:3px!important;color:#a0ad9e!important}.tray{font-family:Georgia,serif!important}.tray.pink{color:#eddfc5!important}#sidePanel{right:24px;top:88px;width:220px}#moveList{font-family:ui-monospace,monospace;font-size:13px;color:#c4cebd}.move-row{border-bottom:1px solid #ffffff09}#statusPill{border-radius:4px;font-size:15px;letter-spacing:0;padding:12px 25px;bottom:23px;background:#172a21e8}.cbtn{border-radius:4px;font-family:system-ui,sans-serif}#camDock{left:24px;bottom:80px}.lbl{font-family:system-ui,sans-serif;letter-spacing:1px!important;font-size:10px!important}.promo-box,.over-box{background:linear-gradient(135deg,#263b30,#14251d)!important;border-color:#ac966b66!important;border-radius:6px!important}.promo-btn{border-radius:5px;background:#ffffff07}.promo-btn .glyph{font-family:Georgia,serif;font-size:55px}.promo-btn .glyph svg{display:none}
+.arcade-back{position:fixed;left:24px;bottom:25px;z-index:40;color:#b9c5b9;font:11px system-ui,sans-serif;text-decoration:none;letter-spacing:1px;padding:10px 0;border-bottom:1px solid #7b8d7e55}.arcade-back:hover{color:#fff}
+@media(max-width:700px){#titleScreen>div{padding:28px 18px!important}.diff-btn{min-width:84px;padding:12px 8px}.diff-btn small{font-size:9px}#topBar{padding:0 15px;height:60px}#gameTitle{font-size:17px}#gameTitle span{display:none}#sidePanel{right:12px;top:66px;width:150px}.arcade-back{left:15px;bottom:18px}#statusPill{bottom:14px;max-width:65%;font-size:12px}#camDock{left:15px;bottom:64px}}
+
+/* Readable instrument panels; preserve green while avoiding near-black labels. */
+.card{background:#233b30f5!important;border-color:#9cb49b55!important}.card h3{color:#e5ddc2!important;font-size:12px!important;letter-spacing:1.5px!important;text-indent:0!important;border-bottom-color:#b9c8ad44}
+.tray.blk{color:#d0d8cd;text-shadow:none}.tray:empty::after{color:#b3c1b2;font-size:15px}.tray.pink{color:#fff0cc!important;text-shadow:none}
+#moveList{font-size:14px;color:#e4e9dd}#moveList:empty::after{color:#b8c7b5;font:12px system-ui,sans-serif;letter-spacing:0}#moveList td.num{color:#b5c6b0}#moveList td.w{color:#fff0cf}#moveList td.b{color:#dce7d9}#moveList tr.last td.hl{background:#e5d29b25;color:#fff0c6}
+#statusPill{background:#2c493bf5;color:#fff4dc;border-color:#bdcaad88;font:600 15px system-ui,sans-serif;box-shadow:0 5px 22px #08180c33}
+#camDock .lbl{color:#d5dfc8}.cbtn,.ibtn{background:#294337eb;border-color:#a9bea166;color:#f2e2bd}.cbtn:hover,.ibtn:hover{background:#446450}.arcade-back{color:#e0e7d7;border-bottom-color:#a9bea188}#gameTitle span{color:#c8d7c5}#statLine{color:#becfbb}.title-sub{color:#d1c5a7}.diff-label{color:#d0ddcb}.diff-btn small{color:#c1cebb}
 </style>
 </head>
 <body>
@@ -243,7 +261,7 @@
 
 <div id="hud" class="hidden">
   <div id="topBar">
-    <div id="gameTitle">블루 체스 <span>BLUE SHIRT vs OBSIDIAN</span></div>
+    <div id="gameTitle">클래식 체스 <span>IVORY & EBONY</span></div>
     <div id="topBtns">
       <button class="ibtn" id="btnUndo"  title="한 수 무르기">↶</button>
       <button class="ibtn" id="btnView"  title="시점 초기화">◎</button>
@@ -278,14 +296,14 @@
 
 <div id="titleScreen" class="overlay">
   <div style="position:relative;padding:0 20px">
-    <div class="title-emblem">👕</div>
-    <h1>블루 체스</h1>
-    <div class="title-sub">Blue Shirt &nbsp;vs&nbsp; Obsidian</div>
+    <div class="title-emblem">♔</div>
+    <h1>클래식 체스</h1>
+    <div class="title-sub">A QUIET GAME OF STRATEGY</div>
     <div class="title-rule"></div>
     <div class="diff-label">난이도를 선택하세요</div>
     <div class="diff-row">
-      <button class="diff-btn" data-d="0">쉬움<small>산책하듯</small></button>
-      <button class="diff-btn sel" data-d="1">보통<small>우아하게</small></button>
+      <button class="diff-btn" data-d="0">쉬움<small>첫 대국에 추천</small></button>
+      <button class="diff-btn sel" data-d="1">보통<small>차근차근 수읽기</small></button>
       <button class="diff-btn" data-d="2">어려움<small>정밀한 수읽기</small></button>
     </div>
     <button class="gbtn" id="btnStart">대국 시작</button>
@@ -297,48 +315,18 @@
   <div class="promo-box">
     <h2>승격할 기물</h2>
     <div class="promo-row">
-      <!-- silhouettes traced from the game's own bird sculpts (not generic chess glyphs) -->
-      <button class="promo-btn" data-p="q"><span class="glyph"><svg viewBox="0 0 60 72" aria-hidden="true">
-        <ellipse cx="29" cy="66" rx="16" ry="4"/>
-        <ellipse cx="26" cy="49" rx="12" ry="11"/>
-        <path d="M26 50 C 29 40, 24 30, 27 19" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="27" cy="15" r="6"/>
-        <path d="M32 14 L43 18 L32 20 Z"/>
-        <path d="M21 8 L23 2 L26 7 L28 1 L31 7 L33 2 L35 8 Z"/>
-        <path d="M34 52 C 46 47, 54 36, 57 26 C 51 33, 44 38, 36 43 Z"/>
-      </svg></span><span class="nm">퀸</span></button>
-      <button class="promo-btn" data-p="r"><span class="glyph"><svg viewBox="0 0 60 72" aria-hidden="true">
-        <ellipse cx="30" cy="66" rx="16" ry="4"/>
-        <path d="M22 64 L38 64 L35 36 L25 36 Z"/>
-        <ellipse cx="30" cy="34" rx="13" ry="4.5"/>
-        <ellipse cx="30" cy="24" rx="8" ry="7"/>
-        <circle cx="33" cy="13" r="4.5"/>
-        <path d="M30 24 C 32 20, 31 17, 32 14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-        <path d="M37 12 L45 15 L37 17 Z"/>
-      </svg></span><span class="nm">룩</span></button>
-      <button class="promo-btn" data-p="b"><span class="glyph"><svg viewBox="0 0 60 72" aria-hidden="true">
-        <ellipse cx="30" cy="66" rx="15" ry="4"/>
-        <ellipse cx="30" cy="50" rx="11" ry="10"/>
-        <path d="M30 51 L30 21" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="30" cy="16" r="6.5"/>
-        <path d="M35 17 L45 20 L35 22 Z"/>
-        <path d="M30 12 L37 3 L26 6 Z"/>
-      </svg></span><span class="nm">비숍</span></button>
-      <button class="promo-btn" data-p="n"><span class="glyph"><svg viewBox="0 0 60 72" aria-hidden="true">
-        <ellipse cx="30" cy="66" rx="16" ry="4"/>
-        <ellipse cx="29" cy="51" rx="12" ry="10"/>
-        <path d="M29 52 C 22 42, 42 36, 36 24 C 33 18, 28 20, 30 24" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="33" cy="19" r="5.5"/>
-        <path d="M38 18 L48 22 L38 24 Z"/>
-        <path d="M31 12 L34 6 L36 13 Z"/>
-      </svg></span><span class="nm">나이트</span></button>
+      <!-- Conventional piece symbols keep promotion choices immediately recognizable. -->
+      <button class="promo-btn" data-p="q"><span class="glyph">♕</span><span class="nm">퀸</span></button>
+      <button class="promo-btn" data-p="r"><span class="glyph">♖</span><span class="nm">룩</span></button>
+      <button class="promo-btn" data-p="b"><span class="glyph">♗</span><span class="nm">비숍</span></button>
+      <button class="promo-btn" data-p="n"><span class="glyph">♘</span><span class="nm">나이트</span></button>
     </div>
   </div>
 </div>
 
 <div id="overModal" class="overlay hidden">
   <div class="over-box" id="overBox">
-    <div class="emblem" id="overEmblem">👕</div>
+    <div class="emblem" id="overEmblem">♔</div>
     <div id="overResult">승리</div>
     <div id="overReason">체크메이트</div>
     <div id="overStats"></div>
@@ -554,7 +542,7 @@ const engine = new BABYLON.Engine(canvas, true, { stencil:true, antialias:true }
 function applyHiDPI(){ engine.setHardwareScalingLevel(1 / Math.min(window.devicePixelRatio || 1, 2)); }
 applyHiDPI();
 const scene = new BABYLON.Scene(engine);
-scene.clearColor = new BABYLON.Color4(0.075, 0.05, 0.1, 1);
+scene.clearColor = new BABYLON.Color4(0.045, 0.075, 0.055, 1);
 
 const camera = new BABYLON.ArcRotateCamera('cam', -Math.PI/2, 1.04, 13.6, new BABYLON.Vector3(0.85, 0.1, -0.35), scene);
 camera.lowerRadiusLimit = 8; camera.upperRadiusLimit = 24;
@@ -640,23 +628,23 @@ function camRelease(){ camVel = null; }
 
 /* ---------- lights & shadows ---------- */
 const hemi = new BABYLON.HemisphericLight('hemi', new BABYLON.Vector3(0.2, 1, 0.1), scene);
-hemi.intensity = 0.35;
-hemi.diffuse = new BABYLON.Color3(0.75, 0.62, 0.72);
-hemi.groundColor = new BABYLON.Color3(0.22, 0.12, 0.2);
+hemi.intensity = 0.65;
+hemi.diffuse = new BABYLON.Color3(0.90, 0.95, 0.89);
+hemi.groundColor = new BABYLON.Color3(0.34, 0.38, 0.31);
 
 const sun = new BABYLON.DirectionalLight('sun', new BABYLON.Vector3(-0.45, -1, 0.5), scene);
 sun.position = new BABYLON.Vector3(9, 16, -10);
-sun.intensity = 3.1;
+sun.intensity = 2.5;
 sun.diffuse = new BABYLON.Color3(1.0, 0.87, 0.72);
 
 const rim = new BABYLON.DirectionalLight('rim', new BABYLON.Vector3(0.5, -0.6, -0.75), scene);
-rim.intensity = 0.7;
-rim.diffuse = new BABYLON.Color3(0.85, 0.55, 0.75);
+rim.intensity = 1.0;
+rim.diffuse = new BABYLON.Color3(0.75, 0.86, 0.81);
 
 const shadowGen = new BABYLON.ShadowGenerator(2048, sun);
 shadowGen.useBlurExponentialShadowMap = true;
 shadowGen.blurKernel = 32;
-shadowGen.darkness = 0.45;
+shadowGen.darkness = 0.27;
 shadowGen.bias = 0.0012;
 
 /* ---------- procedural textures ---------- */
@@ -702,12 +690,12 @@ function skyTexture(){
   const dt = new BABYLON.DynamicTexture('skyTex', { width:w, height:h }, scene, true);
   const ctx = dt.getContext();
   const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0.00, '#160f26');
-  g.addColorStop(0.30, '#3a2246');
-  g.addColorStop(0.55, '#7c3f63');
-  g.addColorStop(0.74, '#c96f7e');
-  g.addColorStop(0.86, '#eeb08c');
-  g.addColorStop(1.00, '#f6d3a7');
+  g.addColorStop(0.00, '#101e19');
+  g.addColorStop(0.30, '#172c23');
+  g.addColorStop(0.55, '#294635');
+  g.addColorStop(0.74, '#587263');
+  g.addColorStop(0.86, '#98a794');
+  g.addColorStop(1.00, '#cdd0af');
   ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
   // dusk sun glow
   const sg = ctx.createRadialGradient(w*0.5, h*0.82, 8, w*0.5, h*0.82, 260);
@@ -757,49 +745,50 @@ const probe = new BABYLON.ReflectionProbe('envProbe', 256, scene, true);
 probe.renderList.push(skyDome);
 probe.refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
 scene.environmentTexture = probe.cubeTexture;
-scene.environmentIntensity = 1.25;
+scene.environmentIntensity = 0.85;
 
 /* ---------- studio floor ---------- */
 const floor = BABYLON.MeshBuilder.CreateDisc('floor', { radius:60, tessellation:64 }, scene);
 floor.rotation.x = Math.PI/2; floor.position.y = -0.16;
 const floorMat = new BABYLON.PBRMaterial('floorMat', scene);
-floorMat.albedoColor = new BABYLON.Color3(0.045, 0.032, 0.055);
-floorMat.metallic = 0.1; floorMat.roughness = 0.32;
-floorMat.environmentIntensity = 1.5;
+floorMat.albedoColor = new BABYLON.Color3(0.065, 0.10, 0.075);
+floorMat.metallic = 0.0; floorMat.roughness = 0.8;
+floorMat.environmentIntensity = 0.35;
 floor.material = floorMat;
 floor.receiveShadows = true;
 floor.isPickable = false;
 
 /* ---------- materials ---------- */
 const goldMat = new BABYLON.PBRMaterial('gold', scene);
-goldMat.albedoColor = new BABYLON.Color3(1.0, 0.82, 0.36);
-goldMat.metallic = 0.92; goldMat.roughness = 0.3;
+goldMat.albedoColor = new BABYLON.Color3(0.63, 0.49, 0.28);
+goldMat.metallic = 0.68; goldMat.roughness = 0.36;
 goldMat.environmentIntensity = 0.65;          // keep the dusk-pink env from tinting gold salmon
-goldMat.emissiveColor = new BABYLON.Color3(0.09, 0.055, 0.012); // faint inner warmth
+goldMat.emissiveColor = BABYLON.Color3.Black();
 
 const ivoryMat = new BABYLON.PBRMaterial('ivory', scene);
-ivoryMat.albedoTexture = marbleTexture('ivoryTex', '#f6ead6', 'rgba(160,125,100,0.8)', 'rgba(205,175,140,0.7)', 'rgba(255,252,244,0.6)');
-ivoryMat.metallic = 0.0; ivoryMat.roughness = 0.16;
-ivoryMat.clearCoat.isEnabled = true; ivoryMat.clearCoat.intensity = 0.4; ivoryMat.clearCoat.roughness = 0.12;
+ivoryMat.albedoTexture = marbleTexture('ivoryTex', '#d6c7a9', 'rgba(151,132,99,0.16)', 'rgba(196,178,147,0.12)', 'rgba(249,235,203,0.12)');
+ivoryMat.metallic = 0.0; ivoryMat.roughness = 0.4;
+ivoryMat.clearCoat.isEnabled = true; ivoryMat.clearCoat.intensity = 0.15; ivoryMat.clearCoat.roughness = 0.32;
 
 const roseMat = new BABYLON.PBRMaterial('rose', scene);
-roseMat.albedoTexture = marbleTexture('roseTex', '#c07f8d', 'rgba(105,45,58,0.85)', 'rgba(245,205,212,0.8)', 'rgba(210,125,140,0.5)');
-roseMat.metallic = 0.0; roseMat.roughness = 0.16;
-roseMat.clearCoat.isEnabled = true; roseMat.clearCoat.intensity = 0.4; roseMat.clearCoat.roughness = 0.12;
+roseMat.albedoTexture = marbleTexture('walnutTex', '#345044', 'rgba(20,48,35,0.22)', 'rgba(87,112,89,0.15)', 'rgba(127,143,106,0.13)');
+roseMat.metallic = 0.0; roseMat.roughness = 0.4;
+roseMat.clearCoat.isEnabled = true; roseMat.clearCoat.intensity = 0.15; roseMat.clearCoat.roughness = 0.32;
 
-const pinkPBR = new BABYLON.PBRMaterial('flamingo', scene);
-pinkPBR.albedoColor = new BABYLON.Color3(0.20, 0.47, 0.86);
-pinkPBR.metallic = 0.05; pinkPBR.roughness = 0.34;
+const pinkPBR = new BABYLON.PBRMaterial('ivoryPiece', scene);
+pinkPBR.albedoColor = new BABYLON.Color3(0.89, 0.82, 0.65);
+pinkPBR.metallic = 0.0; pinkPBR.roughness = 0.34;
 pinkPBR.clearCoat.isEnabled = true; pinkPBR.clearCoat.intensity = 0.55; pinkPBR.clearCoat.roughness = 0.22;
-pinkPBR.sheen.isEnabled = true;
+pinkPBR.sheen.isEnabled = false;
 pinkPBR.sheen.color = new BABYLON.Color3(1.0, 0.78, 0.82);
 pinkPBR.sheen.intensity = 0.5;
 
-const blackPBR = new BABYLON.PBRMaterial('swan', scene);
-blackPBR.albedoColor = new BABYLON.Color3(0.028, 0.026, 0.038);
-blackPBR.metallic = 0.55; blackPBR.roughness = 0.28;
+const blackPBR = new BABYLON.PBRMaterial('ebonyPiece', scene);
+blackPBR.albedoColor = new BABYLON.Color3(0.055, 0.060, 0.058);
+blackPBR.emissiveColor = new BABYLON.Color3(0.006, 0.008, 0.007);
+blackPBR.metallic = 0.08; blackPBR.roughness = 0.34;
 blackPBR.clearCoat.isEnabled = true; blackPBR.clearCoat.intensity = 0.5; blackPBR.clearCoat.roughness = 0.18;
-if(blackPBR.iridescence){ blackPBR.iridescence.isEnabled = true; blackPBR.iridescence.intensity = 0.45; }
+if(blackPBR.iridescence){ blackPBR.iridescence.isEnabled = false; blackPBR.iridescence.intensity = 0.45; }
 
 /* ---------- board ---------- */
 const FILES = 'abcdefgh';
@@ -916,14 +905,48 @@ function leg(){
   return [l, knee];
 }
 /* Each builder returns { body:[meshes], accent:[meshes] } around origin, facing +z */
+// Turned profiles and carved details give every piece a distinct, readable silhouette.
 function chessPiece(type){
- const heights={p:.75,r:1.05,n:1.15,b:1.35,q:1.55,k:1.7},h=heights[type];
- const body=[pedestal(type==='p'?.25:.31)],accent=[];
- const stem=BABYLON.MeshBuilder.CreateCylinder('stem',{diameterTop:.19,diameterBottom:.40,height:h-.35,tessellation:24},scene);stem.position.y=(h-.35)/2+.15;body.push(stem);
- const ring=BABYLON.MeshBuilder.CreateTorus('collar',{diameter:.36,thickness:.07,tessellation:24},scene);ring.position.y=h-.17;accent.push(ring);
- if(type==='r'){const top=BABYLON.MeshBuilder.CreateCylinder('tower',{diameter:.48,height:.2,tessellation:24},scene);top.position.y=h;body.push(top);for(let i=0;i<4;i++){const m=BABYLON.MeshBuilder.CreateBox('battlement',{size:.13},scene);m.position.set(Math.cos(i*Math.PI/2)*.18,h+.15,Math.sin(i*Math.PI/2)*.18);body.push(m);}}
- else if(type==='n'){const neck=BABYLON.MeshBuilder.CreateBox('horseNeck',{width:.2,height:.4,depth:.24},scene);neck.position.y=h;neck.rotation.x=-.3;body.push(neck);const head=BABYLON.MeshBuilder.CreateBox('horseHead',{width:.22,height:.18,depth:.42},scene);head.position.set(0,h+.22,.1);body.push(head);for(const x of [-.07,.07]){const ear=cone('ear',.09,.17);ear.position.set(x,h+.38,-.04);body.push(ear);}}
- else {const head=ellipsoid('head',type==='p'?.28:.32,1,type==='b'?1.6:1,1);head.position.y=h;body.push(head);if(type==='b'){const cut=BABYLON.MeshBuilder.CreateBox('mitreMark',{width:.025,height:.22,depth:.02},scene);cut.position.set(0,h+.05,.16);cut.rotation.z=-.4;accent.push(cut);}if(type==='q')for(let i=0;i<5;i++){const tip=cone('crown',.07,.18);tip.position.set(Math.cos(i*1.256)*.13,h+.2,Math.sin(i*1.256)*.13);accent.push(tip);}if(type==='k'){const v=BABYLON.MeshBuilder.CreateBox('crossV',{width:.07,height:.3,depth:.07},scene);v.position.y=h+.27;const bar=BABYLON.MeshBuilder.CreateBox('crossH',{width:.23,height:.07,depth:.07},scene);bar.position.y=h+.30;accent.push(v,bar);}}
+ const body=[],accent=[],heights={p:.86,r:1.03,n:1.22,b:1.36,q:1.53,k:1.68},h=heights[type];
+ const radius=type==='p'?.29:.34;
+ function turned(name,profile){const mesh=BABYLON.MeshBuilder.CreateLathe(name,{shape:profile.map(([r,y])=>V3(r,y,0)),tessellation:48,cap:BABYLON.Mesh.CAP_ALL},scene);body.push(mesh);return mesh;}
+ function sphere(name,d,x,y,z,sx=1,sy=1,sz=1){const m=ellipsoid(name,d,sx,sy,sz);m.position.set(x,y,z);body.push(m);return m;}
+ function ring(y,d,thick=.035){const m=BABYLON.MeshBuilder.CreateTorus('inlay',{diameter:d,thickness:thick,tessellation:40},scene);m.position.y=y;accent.push(m);}
+ turned('weightedBase',[[0,0],[radius,0],[radius+.025,.035],[radius+.025,.08],[radius,.12],[radius-.02,.15],[radius-.08,.19],[radius-.09,.22],[0,.22]]);
+ ring(.10,radius*2-.01,.018);
+ if(type==='r'){
+  turned('rookBody',[[0,.18],[.23,.18],[.23,.24],[.19,.29],[.175,.67],[.23,.74],[.25,.77],[.25,.84],[.29,.84],[.29,.97],[0,.97]]);
+  for(let i=0;i<6;i++){const a=i*Math.PI/3,m=BABYLON.MeshBuilder.CreateBox('merlon',{width:.14,height:.16,depth:.14},scene);m.position.set(Math.sin(a)*.22,1.02,Math.cos(a)*.22);m.rotation.y=a;body.push(m);}
+  ring(.77,.48,.025);
+ }else if(type==='n'){
+  turned('knightCollar',[[0,.17],[.24,.17],[.24,.25],[.19,.30],[.20,.36],[.23,.39],[0,.39]]);
+  // Carved horse neck is a tapered curved tube, not a square block.
+  const neck=neckTube('archedNeck',[V3(0,.39,-.06),V3(0,.62,-.12),V3(0,.86,-.07),V3(0,1.04,.03)],.21,.13);body.push(neck);
+  sphere('horseSkull',.36,0,1.05,.10,.69,1.03,1.08);
+  const muzzle=sphere('muzzle',.29,0,.98,.30,.7,.66,1.0);muzzle.rotation.x=.25;
+  for(const x of [-.065,.065]){const ear=cone('ear',.095,.2);ear.position.set(x,1.27,.015);ear.rotation.x=-.15;body.push(ear);}
+  const mane=neckTube('mane',[V3(0,.46,-.22),V3(0,.73,-.27),V3(0,.98,-.20),V3(0,1.17,-.07)],.085,.055);body.push(mane);
+  for(const x of [-.128,.128]){const eye=ellipsoid('eye',.035,1,1,1);eye.position.set(x,1.08,.15);accent.push(eye);}
+ }else{
+  const collarY=h-(type==='p'?.24:type==='b'?.36:.36);
+  turned('turnedStem',[[0,.18],[.23,.18],[.235,.24],[.20,.28],[.15,.33],[.12,collarY-.18],[.145,collarY-.08],[.225,collarY-.035],[.23,collarY+.01],[.19,collarY+.055],[0,collarY+.055]]);
+  if(type==='p'){sphere('pawn',.33,0,h-.08,0);}
+  if(type==='b'){
+   const mitre=sphere('mitre',.34,0,h-.14,0,.8,1.30,.8);
+   const cut=BABYLON.MeshBuilder.CreateBox('mitreCut',{width:.065,height:.37,depth:.6},scene);cut.position.set(.07,h-.09,0);cut.rotation.z=-.32;
+   const carved=BABYLON.CSG.FromMesh(mitre).subtract(BABYLON.CSG.FromMesh(cut)).toMesh('carvedMitre',null,scene);body.splice(body.indexOf(mitre),1,carved);mitre.dispose();cut.dispose();sphere('finial',.085,0,h+.10,0);
+  }
+  if(type==='q'){
+   turned('queenCrown',[[0,h-.34],[.15,h-.34],[.16,h-.24],[.25,h-.09],[.24,h-.04],[0,h-.04]]);
+   for(let i=0;i<8;i++){const a=i*Math.PI/4;sphere('crownPearl',.085,Math.cos(a)*.22,h,Math.sin(a)*.22);}
+   sphere('queenOrb',.12,0,h+.035,0);ring(h-.30,.31,.025);
+  }
+  if(type==='k'){
+   turned('kingCrown',[[0,h-.34],[.16,h-.34],[.21,h-.24],[.21,h-.17],[.16,h-.12],[0,h-.12]]);
+   const vert=BABYLON.MeshBuilder.CreateBox('crossVertical',{width:.09,height:.30,depth:.09},scene);vert.position.y=h+.025;
+   const horiz=BABYLON.MeshBuilder.CreateBox('crossHorizontal',{width:.25,height:.085,depth:.09},scene);horiz.position.y=h+.055;body.push(vert,horiz);ring(h-.20,.39,.025);
+  }
+ }
  return {body,accent};
 }
 const BUILDERS=Object.fromEntries(['p','r','n','b','q','k'].map(t=>[t,()=>chessPiece(t)]));
@@ -977,8 +1000,8 @@ function rebuildBoard(){
 }
 
 /* ---------- highlight & glow ---------- */
-const glow = new BABYLON.GlowLayer('glow', scene, { blurKernelSize:48 });
-glow.intensity = 0.85;
+const glow = new BABYLON.GlowLayer('glow', scene, { blurKernelSize:24 });
+glow.intensity = 0.2;
 
 function ringMat(name, color){
   const m = new BABYLON.StandardMaterial(name, scene);
@@ -989,7 +1012,7 @@ function ringMat(name, color){
   return m;
 }
 const selRingMat   = ringMat('selRing',   new BABYLON.Color3(1.0, 0.72, 0.35));
-const dotMatMove   = ringMat('dotMove',   new BABYLON.Color3(1.0, 0.55, 0.65));
+const dotMatMove   = ringMat('dotMove',   new BABYLON.Color3(0.57, 0.85, 0.62));
 const dotMatCapt   = ringMat('dotCapt',   new BABYLON.Color3(1.0, 0.3, 0.35));
 const checkRingMat = ringMat('checkRing', new BABYLON.Color3(1.0, 0.18, 0.18));
 
@@ -997,6 +1020,8 @@ const selRing = BABYLON.MeshBuilder.CreateTorus('selT', { diameter:0.8, thicknes
 selRing.material = selRingMat; selRing.position.y = 0.06; selRing.setEnabled(false); selRing.isPickable = false;
 const checkRing = BABYLON.MeshBuilder.CreateTorus('chkT', { diameter:0.86, thickness:0.055, tessellation:36 }, scene);
 checkRing.material = checkRingMat; checkRing.position.y = 0.06; checkRing.setEnabled(false); checkRing.isPickable = false;
+glow.addIncludedOnlyMesh(selRing);
+glow.addIncludedOnlyMesh(checkRing);
 
 const dotPool = [];
 function getDot(i){
@@ -1005,6 +1030,7 @@ function getDot(i){
     d.position.y = 0.055;
     d.isPickable = true;
     d.metadata = { dot:true };
+    glow.addIncludedOnlyMesh(d);
     dotPool.push(d);
   }
   return dotPool[i];
@@ -1081,16 +1107,15 @@ function featherBurst(pos, dark){
 try{
   const pipe = new BABYLON.DefaultRenderingPipeline('drp', true, scene, [camera]);
   pipe.fxaaEnabled = true;
-  pipe.bloomEnabled = true;
-  pipe.bloomThreshold = 0.75; pipe.bloomWeight = 0.28; pipe.bloomKernel = 48; pipe.bloomScale = 0.5;
+  pipe.bloomEnabled = false;
   pipe.imageProcessingEnabled = true;
   pipe.imageProcessing.toneMappingEnabled = true;
   pipe.imageProcessing.toneMappingType = BABYLON.ImageProcessingConfiguration.TONEMAPPING_ACES;
-  pipe.imageProcessing.exposure = 1.18;
-  pipe.imageProcessing.contrast = 1.12;
+  pipe.imageProcessing.exposure = 1.05;
+  pipe.imageProcessing.contrast = 1.05;
   pipe.imageProcessing.vignetteEnabled = true;
-  pipe.imageProcessing.vignetteWeight = 1.6;
-  pipe.imageProcessing.vignetteColor = new BABYLON.Color4(0.06, 0.02, 0.08, 0);
+  pipe.imageProcessing.vignetteWeight = 0.45;
+  pipe.imageProcessing.vignetteColor = new BABYLON.Color4(0.06, 0.10, 0.07, 0);
   pipe.imageProcessing.vignetteCameraFov = 0.9;
 }catch(e){ /* keep base rendering if pipeline unsupported */ }
 try{
@@ -1099,11 +1124,11 @@ try{
   ssao.expensiveBlur = false;
 }catch(e){ /* SSAO2 optional */ }
 
-/* ---------- gentle idle: board breathes light ---------- */
+/* ---------- restrained move-marker animation ---------- */
 let tAcc = 0;
 scene.onBeforeRenderObservable.add(() => {
   tAcc += engine.getDeltaTime() / 1000;
-  glow.intensity = 0.75 + Math.sin(tAcc * 2.1) * 0.14;
+  glow.intensity = 0.18 + Math.sin(tAcc * 2.1) * 0.025;
   if(selRing.isEnabled()) selRing.rotation.y = tAcc * 0.9;
   if(checkRing.isEnabled()){ checkRing.scaling.setAll(1 + Math.sin(tAcc * 5) * 0.045); }
 });
@@ -1302,7 +1327,7 @@ function checkGameOver(){
   hideLegalDots(); selRing.setEnabled(false);
   refreshIndicators();
   let title, emblem, cls = '';
-  if(res.winner === playerColor){ title = '승리'; emblem = '👕'; stats.w++; SFX.win(); }
+  if(res.winner === playerColor){ title = '승리'; emblem = '♔'; stats.w++; SFX.win(); }
   else if(res.winner){ title = '패배'; emblem = '🦢'; cls = 'lose'; stats.l++; SFX.lose(); }
   else{ title = '무승부'; emblem = '🪶'; cls = 'lose'; stats.d++; SFX.draw(); }
   store.set('fc_stats', stats);
@@ -1522,7 +1547,7 @@ document.querySelectorAll('.diff-btn').forEach(b => {
   });
   if(+b.dataset.d === difficulty){ document.querySelectorAll('.diff-btn').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); }
 });
-$('btnStart').onclick = () => { SFX.ui(); startGame(baseFen); };
+$('btnStart').onclick = () => { if(!piecesReady)return; SFX.ui(); startGame(baseFen); };
 
 function refreshTitleStats(){
   $('statLine').innerHTML = (stats.w + stats.l + stats.d) === 0
@@ -1728,7 +1753,13 @@ if(params.has('aitest')){
 /* ================= render loop ================= */
 engine.runRenderLoop(() => scene.render());
 window.addEventListener('resize', () => { applyHiDPI(); engine.resize(); applyCameraFraming(); });
-document.body.dataset.ready = '1';
+// Compile the actual piece instances before letting the player enter the board.
+let piecesReady=false;
+const startButton=$('btnStart');startButton.disabled=true;startButton.textContent='기물 준비 중…';
+if(mode!=='playing')rebuildBoard();
+Promise.all(Object.values(pieceBySquare).map(m=>m.material.forceCompilationAsync(m))).then(()=>{
+ piecesReady=true;startButton.disabled=false;startButton.textContent='대국 시작';document.body.dataset.ready='1';
+}).catch(()=>{piecesReady=true;startButton.disabled=false;startButton.textContent='대국 시작';document.body.dataset.ready='1';});
 </script>
-<a href="../index.html" style="position:fixed;left:8px;bottom:8px;z-index:9999;background:#10243e;color:white;padding:9px 12px;border-radius:10px;text-decoration:none">← 게임 모음</a></body>
+<a class="arcade-back" href="../index.html">← 게임 모음</a></body>
 </html>

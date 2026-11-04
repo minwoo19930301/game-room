@@ -1,40 +1,7 @@
-import {drawHero as drawShirt} from './hero.js';
+import {prepareCharacters,drawCharacter} from './character-sprites.js';
 import { WIDTH, HEIGHT, GROUND, PILOTS, STAGES } from "./engine.mjs";
 import { prepareAtlas } from "./atlas.mjs";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const HERO_CELLS = [
-  [
-    [0, 0, 211, 297],
-    [214, 0, 235, 297],
-    [451, 0, 244, 297],
-    [695, 0, 253, 297],
-    [948, 0, 178, 297],
-    [1126, 0, 268, 297],
-    [1394, 0, 191, 297],
-    [1585, 0, 189, 297],
-  ],
-  [
-    [0, 296, 215, 298],
-    [215, 296, 235, 298],
-    [450, 296, 245, 298],
-    [695, 296, 247, 298],
-    [942, 296, 174, 298],
-    [1116, 296, 272, 298],
-    [1388, 296, 195, 298],
-    [1583, 296, 191, 298],
-  ],
-  [
-    [0, 594, 217, 293],
-    [217, 594, 231, 293],
-    [448, 594, 245, 293],
-    [693, 594, 240, 293],
-    [933, 594, 184, 293],
-    [1117, 594, 273, 293],
-    [1390, 570, 192, 317],
-    [1582, 594, 192, 293],
-  ],
-];
-export { HERO_CELLS };
 export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
   let reduced = reducedMotion;
   const makeCanvas =
@@ -45,13 +12,7 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
       canvas.height = h;
       return canvas;
     });
-  const heroFrames = prepareAtlas(
-    assets.heroes,
-    HERO_CELLS.map((row) =>
-      row.map((cell, i) => [...cell, [95, 95, 97, 108, 93, 70, 88, 108][i]]),
-    ),
-    makeCanvas,
-  );
+  const characters = prepareCharacters(assets.characters, makeCanvas);
   const enemyTargets = [
     [
       [26, 35, 258, 261],
@@ -182,8 +143,9 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
     }
   }
   function sprite(row,pose,x,y,scale=1,facing=1,alpha=1){
- drawShirt(ctx,x,y-36*scale*2.3,scale*2.3,pose===0?'idle':pose===7?'harden':pose>=4?'eat':'run',pose*.3,['#3478db','#d95652','#e7b341'][row]||'#3478db',{flip:facing<0,alpha});
- }
+    const action=[0,1,2,4,4,5,3,6][pose]??0;
+    drawCharacter(ctx,characters,action,x,y,174*scale,{variant:row===2?3:row,facing,alpha});
+  }
   function heroPose(p, g) {
     if (p.state === "hurt") return 7;
     if (p.state === "guard") return 7;
@@ -242,7 +204,8 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
       !reduced && p.state === "idle" ? Math.sin(g.clock * 3) * 1.5 : 0;
     const alpha =
       p.invuln > 0.1 && !reduced && Math.floor(g.clock * 18) % 2 ? 0.65 : 1;
-    sprite(g.pilot, pose, x, y + bob, 1, p.facing, alpha);
+    if(p.state==='hurt')drawCharacter(ctx,characters,7,x,y,174,{variant:g.pilot===2?3:g.pilot,facing:p.facing,alpha});
+    else sprite(g.pilot, pose, x, y + bob, 1, p.facing, alpha);
     if (p.state === "guard") {
       ctx.beginPath();
       ctx.arc(
@@ -855,9 +818,9 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
     sprite(1, 5, 833, 640, 1.52, 1);
     sprite(2, 4, 1115, 650, 1.62, -1);
     sprite(0, 3, 961, 657, 2.01, 1);
-    text("BLUE SHIRT", 82, 366, 60, "#e4e9d0");
-    text("RANGERS", 82, 430, 66, "#edb757");
-    text("셔츠 전대", 86, 476, 25, "#a9cad1");
+
+
+
   }
   function assembly(g) {
     rect(0, 0, 1280, 720, "#092a3a");
@@ -1011,7 +974,7 @@ export function createRenderer(ctx, assets, { reducedMotion = false } = {}) {
     },
     drawPilot(target, row) {
       target.clearRect(0, 0, target.canvas.width, target.canvas.height);
-      const size=target.canvas.height/85;drawShirt(target,target.canvas.width/2,target.canvas.height-34*size,size,'idle',0,['#3478db','#d95652','#e7b341'][row]);
+      drawCharacter(target,characters,0,target.canvas.width/2,target.canvas.height-4,target.canvas.height*.96,{variant:row===2?3:row});
     },
     sprite,
   };

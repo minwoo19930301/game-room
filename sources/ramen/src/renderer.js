@@ -1,4 +1,3 @@
-import {drawHero} from './hero.js';
 import { DAYS, TOOL_NAMES, potStage } from "./engine.js";
 import {
   ellipse,
@@ -72,22 +71,18 @@ function recipeIcons(c, recipe, x, y) {
 }
 export function draw(c, g, ui, bg) {
   c.clearRect(0, 0, WIDTH, HEIGHT);
-  c.fillStyle='#e9e2d4';c.fillRect(0,0,WIDTH,HEIGHT);
- c.strokeStyle='#d3cbbd';c.lineWidth=2;for(let x=0;x<WIDTH;x+=70){c.beginPath();c.moveTo(x,80);c.lineTo(x,HEIGHT);c.stroke();}for(let y=80;y<HEIGHT;y+=70){c.beginPath();c.moveTo(0,y);c.lineTo(WIDTH,y);c.stroke();}
- round(c,620,100,550,350,18,'#b9d8dc','#45636d',5);round(c,655,125,480,270,12,'#dff2ed');
- drawHero(c,930,360,3.2,'idle',g.clock,'#3478db');
- round(c,10,435,1180,450,18,'#b68258','#76573f',6);round(c,20,445,1160,30,6,'#e1bb82');
- round(c,40,110,515,310,12,'#d6ba8a','#76573f',4);
+  if(bg) c.drawImage(bg,0,0,WIDTH,HEIGHT);
+  else {c.fillStyle='#294138';c.fillRect(0,0,WIDTH,HEIGHT);}
   const t = ui.reducedMotion ? 0 : g.clock;
   // Top strip is part of the kitchen, not a dashboard wrapper.
   path(
     c,
     "M0 0H1200V79Q1170 68 1140 79Q1110 68 1080 79Q1050 68 1020 79Q990 68 960 79Q930 68 900 79Q870 68 840 79Q810 68 780 79Q750 68 720 79Q690 68 660 79Q630 68 600 79Q570 68 540 79Q510 68 480 79Q450 68 420 79Q390 68 360 79Q330 68 300 79Q270 68 240 79Q210 68 180 79Q150 68 120 79Q90 68 60 79Q30 68 0 79Z",
-    "#f65c91",
-    "#b84066",
+    "#233e34",
+    "#183027",
     3,
   );
-  text(c, "블루의 라면가게", 180, 36, 31, "#fff5d8");
+  text(c, "보글보글 라면가게", 180, 36, 31, "#fff5d8");
   text(c, `${g.day}일차`, 387, 22, 19, "#fff5d8");
   text(
     c,
@@ -97,7 +92,7 @@ export function draw(c, g, ui, bg) {
     23,
     "#fff5d8",
   );
-  round(c, 450, 19, 248, 38, 14, "#b83562", "#ffbeca", 2);
+  round(c, 450, 19, 248, 38, 14, "#102e25", "#b9bd91", 2);
   round(
     c,
     455,
@@ -105,7 +100,7 @@ export function draw(c, g, ui, bg) {
     238 * (g.time / DAYS[g.day - 1].seconds),
     28,
     10,
-    "#ffb8c7",
+    "#b1c66c",
   );
   text(
     c,
@@ -197,8 +192,8 @@ export function draw(c, g, ui, bg) {
   path(c, "M773 179L802 198 776 162", "#fff8e7", "#c57679", 3);
   wrap(c, speech, 685, 134, 16, 172, 24);
   // Stove enamel and individual burner rings are interactive foreground paths.
-  path(c, "M74 498H595L614 819 57 819Z", "#ff9fbd", "#c66d84", 3);
-  path(c, "M60 818H615V853H55Z", "#f480a4", "#b94d73", 3);
+  path(c, "M74 498H595L614 819 57 819Z", "#244a3e", "#172f27", 3);
+  path(c, "M60 818H615V853H55Z", "#183b30", "#11291f", 3);
   for (const [i, pos] of POT_POS.entries()) {
     const p = g.pots[i],
       held = ui.heldPot === i;

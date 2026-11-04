@@ -2,7 +2,7 @@ export const W=960,H=600,GROUND=530;
 export const STAGES=[
  {name:'전반전 · 골문을 열어라',goal:'경기장을 막은 수비수들을 넘고, 오른쪽 골대에 슛!',length:2650,time:160,count:8,objective:'goal'},
  {name:'하프타임 · 동료를 찾아라',goal:'두 선수의 벤치까지 달려가 구출하고 적을 모두 제압!',length:3200,time:190,count:12,objective:'friends'},
- {name:'후반전 · 감독님을 구해줘',goal:'까마귀 대장을 쓰러뜨린 뒤 오른쪽 감독님에게 도착!',length:3550,time:220,count:15,objective:'coach'},
+ {name:'후반전 · 감독님을 구해줘',goal:'상대 대장을 쓰러뜨린 뒤 오른쪽 감독님에게 도착!',length:3550,time:220,count:15,objective:'coach'},
 ];
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const toward=(n,t,d)=>n<t?Math.min(t,n+d):Math.max(t,n-d);

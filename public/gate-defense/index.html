@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>블루셔츠 대군단 — Gate Defense</title>
+<title>게이트 러시 · Crowd Runner</title>
 <style>
   :root{
     --pink:#ff5c9e; --pink-deep:#e8437f; --cream:#fff6ea; --ink:#3a2b3f;
@@ -102,6 +102,21 @@
 
   /* clash flash vignette */
   #flash{ position:absolute; inset:0; pointer-events:none; opacity:0; background:radial-gradient(ellipse at center, transparent 45%, rgba(255,80,90,.45)); }
+
+/* Crisp arcade HUD on a sunlit island causeway. */
+:root{--pink:#e3ad44;--pink-deep:#183d45;--cream:#fff8e8;--ink:#183d45}
+#title{background:linear-gradient(105deg,rgba(10,34,41,.78),rgba(10,34,41,.1));justify-content:center;align-items:flex-start;padding:6vw}
+#title .card{max-width:490px;text-align:left;padding:38px;border-radius:12px;background:rgba(13,42,49,.94);border:1px solid #b6d7ca55;box-shadow:0 30px 90px #0005;backdrop-filter:blur(12px)}
+#title .emoji{display:block;font:800 11px system-ui,sans-serif;letter-spacing:5px;color:#e6b957;animation:none;filter:none;padding-bottom:18px}
+#title h1{font-size:clamp(40px,6vw,64px);line-height:1.1;letter-spacing:-3px;text-shadow:none;color:#fff8e8;font-weight:900;margin:0 0 18px}
+#title .tag{font-size:16px;color:#a6c3c6;margin-bottom:30px;font-weight:500}
+#title .controls{font-size:13px;line-height:2.2;color:#c5d8d4;border-top:1px solid #668b8755;padding-top:20px;font-weight:400}#title .controls b{color:#f6d388}
+#title .start{border-radius:5px;padding:15px 22px;margin-top:27px;font-size:15px;animation:none;background:#f0be54;color:#1e3f42;box-shadow:0 4px 0 #b17e30}
+#hud{top:20px;left:20px;right:auto;align-items:flex-start;gap:3px;background:#123c46dd;border:1px solid #b6d7ca44;padding:14px 22px;border-radius:8px;backdrop-filter:blur(10px)}#score{font-size:34px;text-shadow:none;font-weight:850;letter-spacing:-1px}#score::before{content:'SCORE';display:block;font:700 9px system-ui,sans-serif;letter-spacing:3px;color:#b4d3cf;padding-bottom:3px}#subScore{font-size:11px;font-weight:500;text-shadow:none;color:#d1e5db}#best{font-size:10px;text-shadow:none;color:#e6bc69}
+#flockLabel{font-size:26px;background:#164351e8;border:2px solid #d8f0e9;box-shadow:0 6px 18px #132a3240;border-radius:8px;padding:3px 13px}.enemy-label{border-radius:6px;font-size:22px;border:1px solid #ffc1a1;background:#9e3830e8;box-shadow:none}#mute{border-radius:8px;background:#153d46df;color:white;border:1px solid #b6d7ca44;box-shadow:none;top:20px;right:20px;width:42px;height:42px;font-size:18px}
+#hint{font-size:12px;bottom:25px;font-weight:500;color:#f7f4de}#over{background:#0c263ba6;backdrop-filter:blur(5px)}#over .card{border-radius:12px;background:#f4f1e6;padding:35px 50px}#over h2{font-size:42px;color:#153d46}#over .cause{font-size:13px;color:#6d8181;font-weight:500}#over .row{font-size:17px;color:#3a585e}#over .row b{color:#1c646a}#retry{border-radius:5px;background:#1d5a62;box-shadow:0 4px 0 #103d45;font-size:15px;padding:14px 35px}
+.arcade-back{position:fixed;left:20px;bottom:20px;z-index:100;color:#e5f2e8;background:#103c45d9;padding:10px 15px;font-size:11px;border:1px solid #b6d7ca44;border-radius:5px;text-decoration:none}button:focus-visible{outline:2px solid #ffda79;outline-offset:3px}
+@media(max-width:600px){#title{padding:20px;justify-content:center}#title .card{padding:28px;max-width:100%}#title h1{font-size:43px}#hud{padding:9px 13px;top:12px;left:12px}#score{font-size:26px}#mute{top:12px;right:12px}#hint{bottom:70px}.arcade-back{left:12px;bottom:18px}}
 </style>
 <script type="importmap">
 { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
@@ -120,9 +135,9 @@
   <div id="opToast"></div>
   <div id="title">
     <div class="card">
-      <div class="emoji">👕</div>
-      <h1>블루셔츠 대군단</h1>
-      <div class="tag">관문을 골라 군단을 불리고, 적 무리를 뚫어라!</div>
+      <div class="emoji">GATE / RUSH</div>
+      <h1>게이트 러시</h1>
+      <div class="tag">머릿수를 키워라. 길을 뚫어라.</div>
       <div class="controls">
         🖱️ <b>드래그</b> 또는 <b>← → / A D</b> 로 좌우 이동<br>
         <b>파란 관문</b>은 군단 증가, <b>빨간 관문</b>은 감소!<br>
@@ -166,8 +181,8 @@ const lerp  = (a,b,t)=>a+(b-a)*t;
 const fmt   = n=>Math.round(n).toLocaleString('ko-KR');
 const pick  = arr=>arr[Math.floor(Math.random()*arr.length)];
 
-const BEST_KEY = 'flamingo-gate-defense-best';
-const MUTE_KEY = 'flamingo-gate-defense-muted';
+const BEST_KEY = 'gate-rush-best';
+const MUTE_KEY = 'gate-rush-muted';
 
 /* ============================================================
    웹오디오 신스 사운드
@@ -264,7 +279,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xffd2ae, 42, 175);
+scene.fog = new THREE.Fog(0xbad8d2, 65, 210);
 
 // 하늘 그라데이션 (피치 → 시안)
 {
@@ -273,9 +288,9 @@ scene.fog = new THREE.Fog(0xffd2ae, 42, 175);
   const gr = g.createLinearGradient(0,0,0,512);
   gr.addColorStop(0.00,'#5fd4ff');
   gr.addColorStop(0.42,'#a9ecff');
-  gr.addColorStop(0.62,'#ffe3bc');
-  gr.addColorStop(0.78,'#ffc79b');
-  gr.addColorStop(1.00,'#ffb48d');
+  gr.addColorStop(0.62,'#d4e4d3');
+  gr.addColorStop(0.78,'#e8e6ce');
+  gr.addColorStop(1.00,'#e9d4ac');
   g.fillStyle=gr; g.fillRect(0,0,2,512);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -331,18 +346,34 @@ function mergeParts(parts){
   g.setAttribute('color',    new THREE.BufferAttribute(col,3));
   return g;
 }
-const crowdMat = new THREE.MeshLambertMaterial({ vertexColors:true });
+const crowdMat = new THREE.MeshStandardMaterial({ vertexColors:true, roughness:.78, metalness:0.03 });
 
-// --- 블루셔츠 (전방 -z)
+// --- 네이비 대원 (전방 -z)
 function buildHero(crowned){
+ // Sculpted jacket, lapels, white tee and asymmetric swept hair reference the character without branding the game.
+ const coat=crowned?'#243c65':'#273b55', skin='#e9b794', hair='#151f2b',pants='#28313e';
+ const sphere=(r,c,x,y,z,sx=1,sy=1,sz=1)=>part(new THREE.SphereGeometry(r,14,10),c,x,y,z,0,0,0,sx,sy,sz);
  const p=[
- part(new THREE.BoxGeometry(.12,.36,.14),'#24334d',-.09,.22,0),part(new THREE.BoxGeometry(.12,.36,.14),'#24334d',.09,.22,0),
- part(new THREE.BoxGeometry(.15,.09,.23),'#142035',-.09,.045,-.04),part(new THREE.BoxGeometry(.15,.09,.23),'#142035',.09,.045,-.04),
- part(new THREE.BoxGeometry(.36,.36,.22),'#3478db',0,.57,0),
- part(new THREE.BoxGeometry(.10,.3,.12),'#3478db',-.23,.55,0,0,0,-.2),part(new THREE.BoxGeometry(.10,.3,.12),'#3478db',.23,.55,0,0,0,.2),
- part(new THREE.SphereGeometry(.15,10,8),'#efbd95',0,.91,0),part(new THREE.SphereGeometry(.155,10,8),'#19283e',0,.99,.025,0,0,0,1,.65,1),
- part(new THREE.BoxGeometry(.03,.03,.02),'#19283e',-.05,.92,-.145),part(new THREE.BoxGeometry(.03,.03,.02),'#19283e',.05,.92,-.145)];
- if(crowned)p.push(part(new THREE.ConeGeometry(.12,.15,5),'#ffd23e',0,1.16,0));
+ sphere(.105,pants,-.09,.24,0,.84,2.0,1),sphere(.105,pants,.09,.24,0,.84,2.0,1),
+ sphere(.105,'#101b2b',-.09,.055,-.055,.96,.58,1.5),sphere(.105,'#101b2b',.09,.055,-.055,.96,.58,1.5),
+ sphere(.25,coat,0,.58,.005,.78,.96,.63),
+ part(new THREE.BoxGeometry(.14,.27,.025),'#f5f2e9',0,.61,-.154),
+ part(new THREE.BoxGeometry(.09,.21,.03),'#334c70',-.095,.64,-.157,0,0,-.25),part(new THREE.BoxGeometry(.09,.21,.03),'#334c70',.095,.64,-.157,0,0,.25),
+ sphere(.075,coat,-.225,.54,0,.88,2.3,1),sphere(.075,coat,.225,.54,0,.88,2.3,1),
+ sphere(.063,skin,-.225,.365,-.035,.85,1.15,1),sphere(.063,skin,.225,.365,-.035,.85,1.15,1),
+ sphere(.08,skin,0,.78,0,.75,1.0,.8),
+ sphere(.19,skin,0,.96,-.008,1,1.08,.9),
+ sphere(.055,skin,-.185,.96,0,.5,.9,.75),sphere(.055,skin,.185,.96,0,.5,.9,.75),
+ sphere(.195,hair,0,1.055,.04,1,.7,.88),
+ part(new THREE.SphereGeometry(.14,14,10),hair,-.065,1.07,-.095,0,0,-.45,1.1,.55,.65),
+ part(new THREE.SphereGeometry(.10,12,8),hair,.09,1.085,-.08,0,0,.4,1,.6,.7),
+ sphere(.045,'#fff8ef',-.071,.97,-.163,.9,1.17,.42),sphere(.045,'#fff8ef',.071,.97,-.163,.9,1.17,.42),
+ sphere(.029,'#292019',-.071,.97,-.179,.9,1.1,.45),sphere(.029,'#292019',.071,.97,-.179,.9,1.1,.45),
+ sphere(.009,'#ffffff',-.079,.981,-.193),sphere(.009,'#ffffff',.063,.981,-.193),
+ sphere(.023,'#d89e7b',0,.922,-.18,1,.8,.6),
+ part(new THREE.CylinderGeometry(.006,.006,.055,6),'#a76b54',0,.883,-.16,0,0,Math.PI/2),
+ ];
+ if(crowned){p.push(part(new THREE.BoxGeometry(.06,.06,.02),'#dcb869',-.10,.57,-.17));}
  return mergeParts(p);
 }
 
@@ -485,7 +516,7 @@ scene.add(world);
 {
   const water = new THREE.Mesh(
     new THREE.PlaneGeometry(600, 620),
-    new THREE.MeshLambertMaterial({ color:0x39d6d0 })
+    new THREE.MeshLambertMaterial({ color:0x288e9c })
   );
   water.rotation.x = -Math.PI/2;
   water.position.set(0, -0.55, -180);
@@ -497,13 +528,13 @@ const TRACK_HALF = 4.5;
 {
   const track = new THREE.Mesh(
     new THREE.BoxGeometry(TRACK_HALF*2+0.6, 0.7, 380),
-    new THREE.MeshLambertMaterial({ color:0xfff3e0 })
+    new THREE.MeshLambertMaterial({ color:0xd8dbc9 })
   );
   track.position.set(0, -0.35, -160);
   world.add(track);
   // 사이드 레일 (코럴 핑크)
   const railGeo = new THREE.BoxGeometry(0.45, 0.5, 380);
-  const railMat = new THREE.MeshLambertMaterial({ color:0xff8fb4 });
+  const railMat = new THREE.MeshLambertMaterial({ color:0x1e6670 });
   const railL = new THREE.Mesh(railGeo, railMat); railL.position.set(-(TRACK_HALF+0.5), 0.15, -160);
   const railR = new THREE.Mesh(railGeo, railMat); railR.position.set( (TRACK_HALF+0.5), 0.15, -160);
   world.add(railL, railR);
@@ -518,7 +549,7 @@ const TRACK_HALF = 4.5;
 const dashes = [];
 {
   const dashGeo = new THREE.BoxGeometry(0.14, 0.04, 1.7);
-  const dashMat = new THREE.MeshLambertMaterial({ color:0xffd9e6 });
+  const dashMat = new THREE.MeshLambertMaterial({ color:0xf8f0c7 });
   for(let col of [-1.6, 1.6]){
     for(let i=0;i<26;i++){
       const d = new THREE.Mesh(dashGeo, dashMat);
@@ -586,12 +617,12 @@ const clouds = [];
 }
 
 /* ============================================================
-   블루셔츠 군단
+   대원 군단
 ============================================================ */
 const FLOCK_CAP = 150;
-const flamingoGeo = buildHero(false);
+const heroGeometry = buildHero(false);
 const leaderGeo = buildHero(true);
-const flock = new THREE.InstancedMesh(flamingoGeo, crowdMat, FLOCK_CAP);
+const flock = new THREE.InstancedMesh(heroGeometry, crowdMat, FLOCK_CAP);
 flock.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 scene.add(flock);
 const leader = new THREE.Mesh(leaderGeo, crowdMat);
@@ -1451,7 +1482,7 @@ window.__game = {
   spawnGate(z=-40){ spawnGate(z); },
   gameOver: ()=>gameOver('디버그 종료'),
 };
-console.log('[flamingo] ready');
+console.log('[gate-rush] ready');
 </script>
-<a href="../index.html" style="position:fixed;left:8px;bottom:8px;z-index:9999;background:#10243e;color:white;padding:9px 12px;border-radius:10px;text-decoration:none">← 게임 모음</a></body>
+<a class="arcade-back" href="../index.html">← 게임 모음</a></body>
 </html>

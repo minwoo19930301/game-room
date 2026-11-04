@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>초밥 뷔페 · Blue Shirt Arcade</title><script>document.write('<link rel="stylesheet" href="../common/style.css">');</script></head>
-<body><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: ←→↑↓ 이동 · A 버튼으로 젓가락 뻗기</span></div></div>
-<script>document.write('<script src="../common/stadium.js"><\/script>');</script>
+<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>초밥 뷔페</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=2">');</script></head>
+<body data-game="sushi"><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: ←→↑↓ 이동 · A 버튼으로 젓가락 뻗기</span></div></div>
+<script src="../common/scenes.js?v=2"></script>
+<script>document.write('<script src="../common/stadium.js?v=2"><\/script>');</script>
 <script>
 const { palette, drawHero, drawPlayerTag, Game, sfx, bg, text, rr, rand, slots } = STADIUM;
 let g;
@@ -136,18 +137,16 @@ g = Game({ id: 'sushi', title: '초밥 뷔페', duration: 60,
   },
   draw(ctx) {
     const t = g.time, st = g.state(), sec = Math.ceil(g.timeLeft), bills = P.map(p => p.bill), top = Math.max(...bills), low = Math.min(...bills);
-    bg(ctx, g.W, g.H, '#F6EBD2', '#E9D3AC');
-    for (let k = 0; k < 4; k++) rr(ctx, 200 + k * 140, -6, 136, 18, 6, k % 2 ? '#2E4A7A' : '#C93B3B'); // 노렌
+    STADIUM_SCENES.sushi(ctx,t);
     drawHero(ctx, 455, 56, 0.8, chef.jump > 0 ? 'jump' : 'idle', t, '#F4E4EA'); // 주방장(모자·앞치마)
-    rr(ctx, 460, 8, 18, 14, 3, palette.white); rr(ctx, 456, 20, 26, 4, 2, palette.white); rr(ctx, 445, 50, 20, 14, 3, palette.white);
     rr(ctx, 250, 68, 460, 16, 6, '#8C5A3C'); rr(ctx, 250, 68, 460, 5, 3, '#B07A55'); // 카운터
     if (chef.t > 0) { rr(ctx, 262, 24, 160, 34, 10, palette.white); ctx.fillStyle = palette.white; ctx.beginPath(); ctx.moveTo(418, 36); ctx.lineTo(436, 42); ctx.lineTo(418, 48); ctx.fill(); text(ctx, chef.say, 342, 47, 16, palette.ink); }
-    text(ctx, '남은 시간', 600, 30, 13, '#6E5A66'); otext(ctx, String(sec), 600, 70, 40, sec <= 10 ? palette.red : palette.white);
+    text(ctx, '남은 시간', 600, 30, 13, '#e9ddbe'); otext(ctx, String(sec), 600, 70, 40, sec <= 10 ? palette.red : palette.white);
     // 레일(원목+회색 벨트) · 안쪽 바닥 · 가격표 매트
-    ctx.save(); ctx.fillStyle = '#B98A55'; ctx.beginPath(); ctx.ellipse(CX, CY, RX + 35, RY + 30, 0, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#8E8E8E'; ctx.lineWidth = 40; ctx.beginPath(); ctx.ellipse(CX, CY, RX, RY, 0, 0, 7); ctx.stroke();
+    ctx.save(); ctx.fillStyle = '#473628'; ctx.beginPath(); ctx.ellipse(CX, CY, RX + 35, RY + 30, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#596465'; ctx.lineWidth = 40; ctx.beginPath(); ctx.ellipse(CX, CY, RX, RY, 0, 0, 7); ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = 32; ctx.setLineDash([16, 20]); ctx.lineDashOffset = -rail; ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#E9E4D8'; ctx.beginPath(); ctx.ellipse(CX, CY, RX - 35, RY - 30, 0, 0, 7); ctx.fill();
+    const table=ctx.createLinearGradient(0,150,0,450);table.addColorStop(0,'#ead1a2');table.addColorStop(1,'#c39c6b');ctx.fillStyle = table; ctx.beginPath(); ctx.ellipse(CX, CY, RX - 35, RY - 30, 0, 0, 7); ctx.fill();
     ctx.restore(); ctx.save(); ctx.globalAlpha = 0.28; ctx.font = 'bold 12px sans-serif'; SUSHI.forEach((S, k) => text(ctx, `${S.n} ${yen(S.v)}`, 330 + (k % 4) * 100, 280 + (k >> 2) * 22, 12, '#6E5A66')); ctx.restore(); // 가격표: 흐린 글자만(먹을 수 있는 접시로 오인 방지)
     for (const pl of plates) { const q = platePos(pl); drawPlate(ctx, q.x, q.y, pl.type, pl.type < 0 ? 1 : Math.min(1, 0.4 + pl.age * 3)); }
     // 친구 4명 (y 순으로 깊이) + 혀 + 조준 표시 + 이름표
@@ -173,7 +172,7 @@ g = Game({ id: 'sushi', title: '초밥 뷔페', duration: 60,
       rr(ctx, x, y, 180, 64, 12, 'rgba(255,255,255,.9)'); rr(ctx, x, y, 8, 64, 4, p.color);
       drawPlayerTag(ctx, x + 52, y + 17, i);
       if (top > 0 && p.bill === top) { rr(ctx, x + 122, y + 7, 48, 20, 10, palette.gold); text(ctx, '1위', x + 146, y + 22, 13, palette.ink); }
-      otext(ctx, yen(p.bill), x + 16, y + 52, 22, palette.white, palette.ink, 'left');
+      text(ctx, yen(p.bill), x + 16, y + 52, 22, '#26383f', 'left');
       if (p.streak >= 2) text(ctx, `×${Math.min(5, p.streak)} ${SUSHI[p.last].n}`, x + 170, y + 52, 13, '#B8860B', 'right');
       else if (p.last >= 0) text(ctx, SUSHI[p.last].n, x + 170, y + 52, 13, '#9A8A90', 'right');
     });

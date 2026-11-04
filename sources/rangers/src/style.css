@@ -351,3 +351,13 @@ body.playing #touch {
     scroll-behavior: auto;
   }
 }
+
+/* Cinematic action cabinet: readable menus, the artwork remains the focus. */
+html,body{font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;background:#09131b}
+body{background:radial-gradient(ellipse at 50% 15%,#1c3543,#09131b 70%);padding:24px 12px 50px}
+#cabinet{border:1px solid #ffffff25;border-radius:14px;box-shadow:0 24px 100px #0008;width:min(1280px,100%)}
+.title-copy{top:15%;left:7%;max-width:43%}.title-copy h1{font-weight:950;letter-spacing:-3px;font-size:clamp(32px,5.5vw,72px);text-shadow:none;line-height:1.04}.title-copy p{font-size:clamp(10px,1.1vw,15px);color:#c0d7dc;line-height:1.8}.eyebrow{font-size:11px;letter-spacing:3px}.caption{font-size:10px;letter-spacing:2px;color:#87acba}
+.arcade-btn{transform:none;background:#e9c36b;color:#152734;border:0;border-radius:6px;box-shadow:0 3px 0 #9c713d;padding:13px 23px;font-weight:850}.arcade-btn:hover{background:#ffda83}.arcade-btn.secondary{background:#ffffff10;border:1px solid #ffffff40;color:#eef3ed;box-shadow:none}
+#utility button{border-radius:5px;border-color:#ffffff32;background:#0e2534aa}.select-screen{background:#081c2ef2;padding-top:7%;backdrop-filter:blur(7px)}.select-screen h2{letter-spacing:-1px}.roster{gap:18px;max-width:860px}.pilot{background:linear-gradient(#193b4b,#102835);border:1px solid #557383;border-radius:12px;overflow:hidden;min-height:260px;padding-top:170px;transition:border-color .15s,background .15s}.pilot:hover,.pilot[aria-pressed=true]{border-color:#e9c36b;background:linear-gradient(#2c4a58,#152b3a);box-shadow:inset 0 0 0 2px #e9c36b30}.pilot strong{font-size:18px;letter-spacing:-.5px}.pilot small{font-family:system-ui,sans-serif;color:#acc7d0;font-size:12px}.select-art{height:180px}.modal-screen{background:#071827ed;backdrop-filter:blur(5px)}.modal-screen h2{letter-spacing:-1px}.result-stats strong{font-family:system-ui,sans-serif;font-weight:900}
+.arcade-home{position:fixed;left:20px;bottom:14px;z-index:9999;color:#a8c0cc;text-decoration:none;font-size:12px;padding:8px 12px;background:#0b1824cc;border:1px solid #ffffff18;border-radius:20px}.arcade-home:hover{color:white;background:#203c4e}
+@media(max-width:700px){body{padding:4px 4px 44px}.title-copy h1{font-size:clamp(25px,5vw,42px);letter-spacing:-1px}.pilot{min-height:158px;padding-top:93px}.select-art{height:100px}.pilot small{font-size:8px}.pilot strong{font-size:12px}.roster{gap:8px}.select-screen{padding-top:5%}#cabinet{border-radius:8px}}

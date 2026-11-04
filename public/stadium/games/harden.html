@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>딱딱하게! · Blue Shirt Arcade</title><script>document.write('<link rel="stylesheet" href="../common/style.css">');</script></head>
-<body><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: A 버튼을 누르는 동안 딱딱해짐 · 바위가 닿기 직전에 톡!</span></div></div>
-<script>document.write('<script src="../common/stadium.js"><\/script>');</script>
+<head><script>if(/\/games\/[^/]+\/$/.test(location.pathname)){const base=document.createElement('base');base.href='../';document.head.append(base);}</script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>딱딱하게!</title><script>document.write('<link rel="stylesheet" href="../common/style.css?v=2">');</script></head>
+<body data-game="harden"><div class="wrap"><canvas id="game"></canvas><div class="bar"><a href="../../index.html">← 게임 모음</a><span>조작: A 버튼을 누르는 동안 딱딱해짐 · 바위가 닿기 직전에 톡!</span></div></div>
+<script src="../common/scenes.js?v=2"></script>
+<script>document.write('<script src="../common/stadium.js?v=2"><\/script>');</script>
 <script>
 const { palette, drawHero, drawPlayerTag, Game, sfx, bg, text, rr, rand, clamp, lerp, slots } = STADIUM;
 // Rock Harden (specs/harden.md §11 확정값) — 4인 동시 생존전(last one standing).
@@ -102,12 +103,7 @@ g = Game({ id: 'harden', title: '딱딱하게!', howto: ['A 버튼을 누르는 
   },
   draw(ctx) {
     ctx.save(); if (shake > 0) { const a = 4 * shake / 0.2; ctx.translate(rand(-a, a), rand(-a, a)); }
-    bg(ctx, g.W, g.H, '#D5E0E8', '#EEE8DE'); // 청회색 하늘 → 회갈색 암석 절벽 → 밝은 회색 돌바닥
-    for (let row = 0; row < 6; row++) for (let c = -1; c < 8; c++) { const w = 132, x = c * w + (row % 2) * 66, y = 118 + row * 48; rr(ctx, x + 3, y + 3, w - 6, 42, 7, (row * 3 + c) % 4 === 0 ? '#6B5A4A' : (row + c) % 2 ? '#7E6B5A' : '#8A7663'); }
-    rr(ctx, 0, 112, g.W, 10, 0, '#A79582');
-    ctx.fillStyle = '#B9B1A6'; ctx.fillRect(0, FOOT + 4, g.W, g.H - FOOT); rr(ctx, 0, FOOT + 2, g.W, 8, 0, '#D2CABE');
-    ctx.strokeStyle = 'rgba(58,36,48,.08)'; ctx.lineWidth = 2; [430, 470, 510].forEach(y => { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(g.W, y); ctx.stroke(); });
-    ctx.fillStyle = 'rgba(255,255,255,.35)'; for (let i = 0; i < 14; i++) { const x = (i * 97 + g.time * (8 + i % 3 * 4)) % g.W, y = 130 + (i * 53) % 250 + Math.sin(g.time + i) * 6; ctx.beginPath(); ctx.arc(x, y, 1.5 + i % 2, 0, 7); ctx.fill(); }
+    STADIUM_SCENES.arena(ctx,g.time);
     for (const r of rocks) { // 그림자: 선형으로 커지고 진해짐(6px→r×1.1, α .15→.55) — 유일한 정확한 타이밍 단서
       if (elapsed < r.start) continue; const k = clamp((elapsed - r.start) / r.fall, 0, 1), rx = lerp(6, r.r * 1.1, k);
       ctx.fillStyle = `rgba(20,14,10,${lerp(0.15, 0.55, k)})`; ctx.beginPath(); ctx.ellipse(r.p.x, FOOT + 8, rx, rx * 0.38, 0, 0, 7); ctx.fill();
@@ -139,11 +135,11 @@ g = Game({ id: 'harden', title: '딱딱하게!', howto: ['A 버튼을 누르는 
     for (const o of pops) { ctx.save(); ctx.globalAlpha = clamp(o.life * 2, 0, 1); text(ctx, o.s, o.x, o.y, 22, palette.white); text(ctx, o.s, o.x, o.y - 1, 22, o.c); ctx.restore(); }
     P.forEach((p, i) => { // 하단 HUD(§11-8): 배지 + "HP" 라벨 + 막대 150×14(60% 초록 / 30~60% 노랑 / <30% 빨강, 숫자 없음) + 상태
       const x = p.x, hp = clamp(p.hp, 0, MAXHP), won = winner === p;
-      rr(ctx, x - 90, 428, 180, 96, 12, 'rgba(58,36,48,.14)'); drawPlayerTag(ctx, x, 446, i);
-      text(ctx, 'HP', x - 88, 482, 14, palette.ink, 'left'); rr(ctx, x - 64, 470, 150, 14, 7, p.out ? '#8E8884' : '#4A4340');
+      rr(ctx, x - 90, 428, 180, 96, 12, 'rgba(27,43,49,.88)'); drawPlayerTag(ctx, x, 446, i);
+      text(ctx, 'HP', x - 88, 482, 14, '#d5ddd8', 'left'); rr(ctx, x - 64, 470, 150, 14, 7, p.out ? '#8E8884' : '#4A4340');
       if (!p.out && hp > 0) rr(ctx, x - 64, 470, 150 * hp / MAXHP, 14, 7, hp >= 60 ? palette.green : hp >= 30 ? palette.gold : palette.red);
       if (p.hpFlash > 0) rr(ctx, x - 64, 470, 150, 14, 7, `rgba(255,90,95,${p.hpFlash / 0.35 * 0.8})`);
-      if (p.out) text(ctx, '탈락', x, 509, 15, palette.red); else if (won) text(ctx, '승리!', x, 509, 15, palette.pinkDark); else text(ctx, `방어 ${p.blocks}`, x, 509, 14, palette.ink, 'center', 'bold');
+      if (p.out) text(ctx, '탈락', x, 509, 15, palette.red); else if (won) text(ctx, '승리!', x, 509, 15, palette.gold); else text(ctx, `방어 ${p.blocks}`, x, 509, 14, '#d5ddd8', 'center', 'bold');
     });
     text(ctx, `생존 ${P.filter(p => !p.out).length}/4`, g.W / 2, 36, 22, palette.ink);
     if (over && g.state() !== 'end') { // 종료 연출: 중앙 큰 "○P 승리!" (무승부 / 120초 상한 문구 포함)

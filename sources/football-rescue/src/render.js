@@ -1,4 +1,4 @@
-import {drawHero} from './hero.js';
+import {drawCharacter} from './character-sprites.js';
 import {W,H,GROUND,STAGES,remaining} from './engine.js';
 export const PLAYER_FRAMES=[
  [38,12,177,344],[238,42,267,314],[509,39,265,318],[779,47,255,310],[1037,13,258,315],[1290,52,246,304],
@@ -15,11 +15,12 @@ export function keyChroma(canvas,image){
  for(let i=0;i<data.data.length;i+=4){const r=data.data[i],g=data.data[i+1],b=data.data[i+2];if(g>150&&b>150&&r<105&&Math.abs(g-b)<85){data.data[i+3]=0;}else if(g>100&&b>100&&r<90&&Math.abs(g-b)<55){data.data[i+3]=0;}}
  ctx.putImageData(data,0,0);return canvas;
 }
-function text(ctx,s,x,y,size=18,color='#fff',align='left',stroke=true){ctx.font=`${size}px Galmuri11, monospace`;ctx.textAlign=align;ctx.textBaseline='alphabetic';if(stroke){ctx.lineWidth=4;ctx.strokeStyle='#14272d';ctx.strokeText(s,x,y);}ctx.fillStyle=color;ctx.fillText(s,x,y);}
+function text(ctx,s,x,y,size=18,color='#fff',align='left',stroke=true){ctx.font=`700 ${size}px system-ui, sans-serif`;ctx.textAlign=align;ctx.textBaseline='alphabetic';if(stroke){ctx.lineWidth=4;ctx.strokeStyle='#14272d';ctx.strokeText(s,x,y);}ctx.fillStyle=color;ctx.fillText(s,x,y);}
 function rect(ctx,x,y,w,h,fill,stroke='#14272d',line=2){ctx.fillStyle=fill;ctx.fillRect(x,y,w,h);if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=line;ctx.strokeRect(x,y,w,h);}}
-function sprite(ctx,img,frames,frame,x,y,scale,dir=1,nativeDir=1,opacity=1){
- const player=frames===PLAYER_FRAMES,pose=frame===0?'idle':frame===17?'fly':frame===15?'hit':frame>=6&&frame<=11?'eat':frame>=12&&frame<=14?'jump':'run';
- drawHero(ctx,x,y-32*scale*4,scale*4,pose,frame*.3,player?'#3478db':frame>=12?'#2f9b84':'#d95652',{flip:dir<0,alpha:opacity});
+function sprite(ctx,atlas,frames,frame,x,y,scale,dir=1,nativeDir=1,opacity=1){
+ const player=frames===PLAYER_FRAMES;
+ const action=(player?[0,1,2,1,2,1,10,5,0,10,4,0,3,3,4,7,10,9]:[0,1,2,4,10,7,0,1,6,5,10,7,8,8,8,9,10,9])[frame]??0;
+ drawCharacter(ctx,atlas,action,x,y,340*scale,{variant:player?0:frame>=12?2:1,facing:dir,alpha:opacity,lean:player&&frame===10?.15*dir:0});
 }
 function playerFrame(p){switch(p.action){case'run':return 1+Math.floor(p.stride)%5;case'kick':return p.actionTime<.11?6:p.actionTime<.25?7:8;case'tackle':return p.actionTime<.07?9:p.actionTime<.31?10:11;case'jump':return p.vy>50?13:12;case'header':return 14;case'hurt':return 15;case'fallen':return 16;case'victory':return 17;default:return 0;}}
 function enemyFrame(e,t){const k=e.type==='duck'?0:6;if(e.hp<=0||e.action==='hurt')return k+5;if(e.action==='windup')return k+(e.type==='duck'?3:2);if(e.action==='slide')return 4;if(e.action==='throw')return 9;if(e.action==='recover')return k;if(e.action==='walk')return k+1+(e.type==='duck'?Math.floor(t*9)%2:0);return k;}
@@ -65,9 +66,9 @@ export function render(ctx,g,assets,{reducedMotion=false}={}){
  ctx.restore();ctx.restore();
  // Mask portrait artwork to a deliberate HUD window instead of letting it spill over.
  if(g.mode!=='title'){
-  rect(ctx,13,13,63,75,'#ffedb5');drawHero(ctx,44,57,.75,'idle',0);
+  rect(ctx,13,13,63,75,'#ffedb5');ctx.save();ctx.beginPath();ctx.rect(15,15,59,71);ctx.clip();drawCharacter(ctx,assets.characters,0,44,126,112);ctx.restore();
   HUD(ctx,g,assets);
-  text(ctx,'BLUE 07',15,103,10,'#fff');text(ctx,'SCORE '+String(g.score).padStart(6,'0'),94,101,14,'#fff');
+  text(ctx,'PLAYER 07',15,103,10,'#fff');text(ctx,'SCORE '+String(g.score).padStart(6,'0'),94,101,14,'#fff');
   text(ctx,`→ ${Math.max(0,Math.ceil((s.length-g.player.x)/10))} m`,940,579,13,'#fff','right');
   if(g.stageTime<5){rect(ctx,190,151,580,51,'#effcffdf');text(ctx,s.goal,480,183,15,'#163345','center',false);}
   if(g.combo>1)text(ctx,g.combo+' HIT!',480,139,29,'#ffdc2c','center');

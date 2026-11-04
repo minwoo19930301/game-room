@@ -4,7 +4,7 @@ export const WIDTH = 1280,
   STEP = 1 / 60;
 export const PILOTS = [
   {
-    name: "블루",
+    name: "네이비",
     title: "BLUE / 돌파형",
     color: "#3478db",
     dark: "#aa2731",
