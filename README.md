@@ -47,7 +47,7 @@
       <a href="https://minwoo19930301.github.io/game-room/crossroad/">플레이</a> · <a href="public/crossroad/">소스</a> · <a href="public/crossroad/README.md">안내</a>
     </td>
     <td width="33%" align="center" valign="top">
-      <a href="public/art/previews/stairs.png"><img src="public/art/previews/stairs.png" width="280" alt="끝없는 계단 실제 게임 화면"></a><br>
+      <a href="public/art/previews/stairs.png"><img src="public/art/previews/stairs.png?v=2" width="280" alt="끝없는 계단 실제 게임 화면"></a><br>
       <strong>끝없는 계단</strong><br>
       <sub>1인 · 계단 오르기</sub><br>
       <a href="https://minwoo19930301.github.io/game-room/stairs/">플레이</a> · <a href="public/stairs/">소스</a> · <a href="public/stairs/README.md">안내</a>
